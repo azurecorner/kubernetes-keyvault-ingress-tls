@@ -1,0 +1,4 @@
+terraform/webapi/.terraform.lock.hcl
+terraform/webapi/.terraform.tfstate.lock.info
+terraform/webapi/.gitignore
+terraform/.terraform.lock.hcl
