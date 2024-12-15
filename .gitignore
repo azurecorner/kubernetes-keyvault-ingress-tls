@@ -2,3 +2,10 @@ terraform/webapi/.terraform.lock.hcl
 terraform/webapi/.terraform.tfstate.lock.info
 terraform/webapi/.gitignore
 terraform/.terraform.lock.hcl
+/src/.vs
+/src/kubernetes-ingress-tls-demo-api/.vs/kubernetes-ingress-tls-demo-api/CopilotIndices/17.12.38.29086
+/src/kubernetes-ingress-tls-demo-api/.vs/kubernetes-ingress-tls-demo-api/FileContentIndex
+/src/kubernetes-ingress-tls-demo-api/.vs/kubernetes-ingress-tls-demo-api/v17
+/src/kubernetes-ingress-tls-demo-api/WebApi/bin
+/src/kubernetes-ingress-tls-demo-api/WebApi/obj
+/src/kubernetes-ingress-tls-demo-api/WebApi/Properties/PublishProfiles
