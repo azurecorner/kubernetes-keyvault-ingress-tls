@@ -1,0 +1,43 @@
+# templates/deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aks-command-api.fullname" . }}-deployment
+  namespace: default
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "aks-command-api.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "aks-command-api.fullname" . }}
+    spec:
+      containers:
+      - name: aks-command-api
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.containerPort }}
+       
+        env:
+        - name: TITLE
+          value: "{{ .Values.env.title }}"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "{{ .Values.env.aspnetcoreEnvironment }}"
+       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aks-command-api.fullname" . }}-service
+  namespace: default
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.port }}  # Expose port 80 to external access
+    targetPort: {{ .Values.service.targetPort }}   # Map to port 8080 inside the pod
+  selector:
+    app: {{ include "aks-command-api.fullname" . }}

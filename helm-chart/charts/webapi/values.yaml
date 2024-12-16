@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: aksingrestlsacr.azurecr.io/kubernetes-ingress-tls-demo-api
+  pullPolicy: IfNotPresent
+  tag: v4
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  containerPort: 8080
+
+env:
+  title: "Welcome to Azure Kubernetes Service (AKS)"
+  aspnetcoreEnvironment: "Kubernetes"
+
+configMapRef:
+  sqlServerKey: SQL_SERVER
+  dbNameKey: DB_NAME
+  userNameKey: USER_NAME
+
+secretRef:
+  dbPasswordKey: DB_PASSWORD
+
+connectionStringTemplate: "Data Source=$(SQL_SERVER);Initial Catalog=$(DB_NAME);User=$(USER_NAME);Password=$(DB_PASSWORD)"
+
+
+configMap:
+  name: mssql-config
+  labels:
+    product: mssql
+  data:
+    SQL_SERVER: "mssql-server-edusync-dev.database.windows.net"
+    DB_NAME: "backend-db-edusync-dev"
+    USER_NAME: "mssql-admin-user"
+secret:
+  name: mssql
+  labels:
+    version: "1.0.0"
+    product: "mssql"
+  data:
+    DB_PASSWORD: "x%3b-Rq]xHP66ny!P*P$"  # Sensitive data can be overridden securely during deployment
