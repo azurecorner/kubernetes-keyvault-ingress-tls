@@ -10,3 +10,6 @@ terraform/.terraform.lock.hcl
 /src/kubernetes-ingress-tls-demo-api/WebApi/obj
 /src/kubernetes-ingress-tls-demo-api/WebApi/Properties/PublishProfiles
 /src/kubernetes-ingress-tls-demo-api/.vs/kubernetes-ingress-tls-demo-api
+/src/kubernetes-ingress-tls-demo-api/.vs/ProjectEvaluation
+/src/kubernetes-ingress-tls-demo-api/WebApp/bin/Debug/net9.0
+/src/kubernetes-ingress-tls-demo-api/WebApp/obj
