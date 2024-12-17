@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "aks-command-api.fullname" . }}-deployment
+  name: {{ include "aks-command-api.fullname" . }}-api-deployment
   namespace: default
 spec:
   replicas: {{ .Values.replicaCount }}

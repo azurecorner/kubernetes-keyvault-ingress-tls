@@ -57,7 +57,7 @@ kubectl get services --namespace ingress-nginx
 kubectl describe ingressclasses nginx
 
 
-Deploy an additional Helm chart (logcorner-command)
+#Deploy an additional Helm chart (logcorner-command)
 Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green
 # Change to the correct directory (up one level)
 
@@ -70,7 +70,7 @@ Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green
 
 
 # helm upgrade --install logcorner-command  $ChartName
-helm upgrade --install logcorner-command $ChartName 
+helm upgrade --install http-api $ChartName 
 
 
 write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
