@@ -74,17 +74,17 @@ helm upgrade --install http-api $ChartName
 
 
 write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
-kubectl wait --for=condition=ready pod -l app=logcorner-command-http-api --timeout=300s
+kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
 
 kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 
 
-#We can see the host, the path, and the backends.
-kubectl describe ingress ingress-path
+# #We can see the host, the path, and the backends.
+# kubectl describe ingress ingress-path
 
 
-$INGRESSIP=$(kubectl get ingress -o jsonpath='{ .items[].status.loadBalancer.ingress[].ip }')
-curl http://$INGRESSIP
+# $INGRESSIP=$(kubectl get ingress -o jsonpath='{ .items[].status.loadBalancer.ingress[].ip }')
+# curl http://$INGRESSIP
 
-curl http://$INGRESSIP/red  --header 'Host: ingress.cloud-devops-craft.com'
-curl http://$INGRESSIP/blue --header 'Host: ingress.cloud-devops-craft.com'
+# curl http://$INGRESSIP/red  --header 'Host: ingress.cloud-devops-craft.com'
+# curl http://$INGRESSIP/blue --header 'Host: ingress.cloud-devops-craft.com'

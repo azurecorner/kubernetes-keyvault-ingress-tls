@@ -3,20 +3,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "aks-command-api.fullname" . }}-deployment
+  name: {{ include "aks-command-app.fullname" . }}-deployment
   namespace: default
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "aks-command-api.fullname" . }}
+      app: {{ include "aks-command-app.fullname" . }}
   template:
     metadata:
       labels:
-        app: {{ include "aks-command-api.fullname" . }}
+        app: {{ include "aks-command-app.fullname" . }}
     spec:
       containers:
-      - name: aks-command-api
+      - name: aks-command-app
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
@@ -32,7 +32,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "aks-command-api.fullname" . }}-service
+  name: {{ include "aks-command-app.fullname" . }}-service
   namespace: default
 spec:
   type: {{ .Values.service.type }}
@@ -40,4 +40,4 @@ spec:
   - port: {{ .Values.service.port }}  # Expose port 80 to external access
     targetPort: {{ .Values.service.targetPort }}   # Map to port 8080 inside the pod
   selector:
-    app: {{ include "aks-command-api.fullname" . }}
+    app: {{ include "aks-command-app.fullname" . }}
