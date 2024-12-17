@@ -13,3 +13,8 @@ terraform/.terraform.lock.hcl
 /src/kubernetes-ingress-tls-demo-api/.vs/ProjectEvaluation
 /src/kubernetes-ingress-tls-demo-api/WebApp/bin/Debug/net9.0
 /src/kubernetes-ingress-tls-demo-api/WebApp/obj
+/src/kubernetes-ingress-tls/.vs
+/src/kubernetes-ingress-tls/WebApi/bin
+/src/kubernetes-ingress-tls/WebApi/obj
+/src/kubernetes-ingress-tls/WebApp/bin/Debug/net9.0
+/src/kubernetes-ingress-tls/WebApp/obj
