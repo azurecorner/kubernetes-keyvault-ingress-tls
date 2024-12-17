@@ -68,20 +68,19 @@ Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green
 #     kubectl delete pod curl-test --namespace $WORKLOAD_NAMESPACE
 # }
 
-
 # helm upgrade --install logcorner-command  $ChartName
-helm upgrade --install http-api $ChartName 
+helm upgrade --install datasynchro-api $ChartName 
 
+$webappChartName = "webapp"
+helm upgrade --install datasynchro-app $webappChartName 
 
-write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
-kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
+# write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
+# kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
 
 kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 
-
 # #We can see the host, the path, and the backends.
 # kubectl describe ingress ingress-path
-
 
 # $INGRESSIP=$(kubectl get ingress -o jsonpath='{ .items[].status.loadBalancer.ingress[].ip }')
 # curl http://$INGRESSIP

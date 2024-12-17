@@ -4,9 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>26de1fc5-a835-4747-8891-82543ce83d11</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
-    <UserSecretsId>66587572-e133-4238-b844-e71644aca2de</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
