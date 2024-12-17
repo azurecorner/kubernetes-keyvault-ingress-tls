@@ -24,5 +24,4 @@ namespace WebApp.Pages
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         }
     }
-
 }
