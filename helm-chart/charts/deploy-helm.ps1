@@ -4,7 +4,7 @@ $NAMESPACE = "ingress-nginx"
 $RESOURCE_GROUP_NAME = "RG-AKS-INGRESS-TLS"
 $CLUSTER_NAME = "aks-ingress-tls"
 $WORKLOAD_NAMESPACE = "default"
-
+$INGRESS_NAME="ingress-datasynchro"
 az aks get-credentials --resource-group $RESOURCE_GROUP_NAME --name $CLUSTER_NAME --overwrite-existing
 kubectl get deployments --all-namespaces=true
 # az network vnet check-ip-address --name $VNET_NAME -g $RESOURCE_GROUP_NAME --ip-address $PRIVATE_IP
@@ -18,20 +18,19 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 # Update the Helm repo to ensure we have the latest charts
 helm repo update
 
-# Deploy the NGINX ingress controller with an internal load balancer
 Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
+# Deploy the NGINX ingress controller with an external load balancer
 
-
-# Use Helm to deploy an NGINX ingress controller without static private IP address
 helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
---namespace $NAMESPACE  `
---create-namespace  `
---set controller.service.type=LoadBalancer  `
---set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"="true" 
+    --namespace $NAMESPACE  `
+    --set controller.replicaCount=2 `
+    --set controller.nodeSelector."kubernetes\.io/os"=linux  `
+    --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz  `
+    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux
 
 $ServiceName = "ingress-nginx-controller"
 
-Write-Host "Waiting for external IP for service '$ServiceName' in namespace '$NAMESPACE'..."
+Write-Host "Waiting for external IP for service '$ServiceName' in namespace '$NAMESPACE'..." -ForegroundColor Green
 
 do {
     $externalIP = kubectl get service $ServiceName --namespace $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
@@ -41,61 +40,55 @@ do {
     }
 } while (-not $externalIP)
 
-Write-Host "Service is ready! External IP: $externalIP"
-
+Write-Host "Service is ready! External IP: $externalIP" -ForegroundColor Green
 
 #Check the status of the pods to see if the ingress controller is online.
 kubectl get pods --namespace ingress-nginx
 
-
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
 kubectl get services --namespace ingress-nginx
 
-
-#Check out the ingressclass nginx...we have not set the is-default-class so in each of our Ingresses we will need 
-#specify an ingressclassname
-kubectl describe ingressclasses nginx
-kubectl get services --namespace ingress-nginx
-#############################################################
-$ingressName="ingress-path"
-kubectl describe ingress $ingressName
-
-$externalIP=$(kubectl get ingresses $ingressName -o jsonpath='{ .status.loadBalancer.ingress[].ip }')
-
-Write-Host "Service is ready! External IP: $externalIP"
-
-curl http://$externalIP/red  --header 'Host: ingress.cloud-devops-craft.com'
-curl http://$externalIP/blue --header 'Host: ingress.cloud-devops-craft.com'
-
-#############################################################
-
 #Deploy an additional Helm chart (logcorner-command)
 Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green
-# Change to the correct directory (up one level)
 
-# kubectl delete pod curl-test --namespace  helm
-
-# $status = kubectl get pod curl-test --namespace $WORKLOAD_NAMESPACE -o jsonpath='{.status.phase}'
-# if ($status -ne "Running") {
-#     kubectl delete pod curl-test --namespace $WORKLOAD_NAMESPACE
-# }
-
-# helm upgrade --install logcorner-command  $ChartName
 helm upgrade --install datasynchro-api $ChartName 
 
 $webappChartName = "webapp"
 helm upgrade --install datasynchro-app $webappChartName 
 
-# write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
-# kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
+write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
+
+#kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
 
 kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 
-# #We can see the host, the path, and the backends.
-# kubectl describe ingress ingress-path
+kubectl describe ingressclasses nginx
+kubectl get services --namespace ingress-nginx
+kubectl describe ingress $INGRESS_NAME
 
-# $INGRESSIP=$(kubectl get ingress -o jsonpath='{ .items[].status.loadBalancer.ingress[].ip }')
-# curl http://$INGRESSIP
+write-host "Calling web app ... " -ForegroundColor Green
+curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
 
-# curl http://$INGRESSIP/red  --header 'Host: ingress.cloud-devops-craft.com'
-# curl http://$INGRESSIP/blue --header 'Host: ingress.cloud-devops-craft.com'
+Write-Host "Calling web api... " -ForegroundColor Green
+curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
+
+<# curl -v http://localhost:5166/api/WeatherForecast
+curl -v http://localhost:5166/api/WeatherForecast/1
+
+
+Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body '{
+    "Date": "2024-12-19",
+    "TemperatureC": 22,
+    "Summary": "Warm"
+}'
+
+Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast" -Method PUT -Headers @{ "Content-Type" = "application/json" } -Body '{
+    "Date": "2024-12-19",
+    "TemperatureC": 22,
+    "Summary": "Warm"
+}'
+
+
+Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast/1" -Method DELETE -Headers @{ "Content-Type" = "application/json" } #>
+
+
