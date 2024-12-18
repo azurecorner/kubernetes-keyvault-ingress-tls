@@ -18,3 +18,4 @@ terraform/.terraform.lock.hcl
 /src/kubernetes-ingress-tls/WebApi/obj
 /src/kubernetes-ingress-tls/WebApp/bin/Debug/net9.0
 /src/kubernetes-ingress-tls/WebApp/obj
+/terraform/.terraform.tfstate.lock.info
