@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-namebased
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.ingress.cloud-devops-craft.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: datasynchro-api-http-api-service
+            port:
+              number: 80
+  - host: app.ingress.cloud-devops-craft.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: datasynchro-app-http-app-service
+            port:
+              number: 80

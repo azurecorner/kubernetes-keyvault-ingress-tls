@@ -55,7 +55,19 @@ kubectl get services --namespace ingress-nginx
 #Check out the ingressclass nginx...we have not set the is-default-class so in each of our Ingresses we will need 
 #specify an ingressclassname
 kubectl describe ingressclasses nginx
+kubectl get services --namespace ingress-nginx
+#############################################################
+$ingressName="ingress-path"
+kubectl describe ingress $ingressName
 
+$externalIP=$(kubectl get ingresses $ingressName -o jsonpath='{ .status.loadBalancer.ingress[].ip }')
+
+Write-Host "Service is ready! External IP: $externalIP"
+
+curl http://$externalIP/red  --header 'Host: ingress.cloud-devops-craft.com'
+curl http://$externalIP/blue --header 'Host: ingress.cloud-devops-craft.com'
+
+#############################################################
 
 #Deploy an additional Helm chart (logcorner-command)
 Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green

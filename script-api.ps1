@@ -4,7 +4,7 @@ $acrName = "aksingrestlsacr"  # Name of your Azure Container Registry (ACR)
 
  #  *************************************** web api ***************************************
 $imageName = "kubernetes-ingress-tls-api"  # Name of the image
-$imageTag = "v1.0.0"  # Tag for the image
+$imageTag = "v2.0.0"  # Tag for the image
 
 # Get the full path to the current script location
 $scriptPath = (Get-Location).Path  # Current folder path where the script is running
@@ -16,7 +16,7 @@ Write-Host "Building Docker image from context: $buildContextPath"
 Write-Host "Using Dockerfile located at: $dockerFilePath"
 
 # Build and tag the Docker image
-docker build -f $dockerFilePath -t "${acrName}.azurecr.io/${imageName}:${imageTag}" $buildContextPath
+docker build -f $dockerFilePath -t "${acrName}.azurecr.io/${imageName}:${imageTag}" $buildContextPath 
 
 # Check if the build was successful
 if ($LASTEXITCODE -eq 0) {
@@ -25,10 +25,10 @@ if ($LASTEXITCODE -eq 0) {
     Write-Error "Docker image build failed"
 }
 
- docker run  --name kubernetes-ingress-tls-api --rm -it -p 8080:8080/tcp -p 8081:8081/tcp ${acrName}.azurecr.io/${imageName}:${imageTag}
+#  docker run  --name kubernetes-ingress-tls-api --rm -it -p 8080:8070/tcp -p  ${acrName}.azurecr.io/${imageName}:${imageTag}
 
 
-curl http://localhost:8080/WeatherForecast
+# curl http://localhost:8080/api/WeatherForecast
 
 
 # Get the access token from Azure CLI
