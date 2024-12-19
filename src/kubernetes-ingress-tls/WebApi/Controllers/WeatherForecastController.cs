@@ -48,18 +48,21 @@ namespace WebApi.Controllers
         [HttpPost(Name = "CreateWeatherForecast")]
         public IActionResult Post([FromBody] WeatherForecast WeatherForecast)
         {
+            Console.WriteLine($"Post using body : {WeatherForecast.Id}, {WeatherForecast.Summary}, {WeatherForecast.Date}, {WeatherForecast.TemperatureC}");
             return CreatedAtRoute("WeatherForecastById", new { id = WeatherForecast.Id }, WeatherForecast);
         }
 
         [HttpPut(Name = "UpdateWeatherForecast")]
         public IActionResult Put([FromBody] WeatherForecast WeatherForecast)
         {
+            Console.WriteLine($"Put using body : {WeatherForecast.Id}, {WeatherForecast.Summary}, {WeatherForecast.Date}, {WeatherForecast.TemperatureC}");
             return CreatedAtRoute("WeatherForecastById", new { id = WeatherForecast.Id }, WeatherForecast);
         }
 
         [HttpDelete("{id}", Name = "DeleteWeatherForecast")]
         public IActionResult Delete(int id)
         {
+            Console.WriteLine($"Delete using id : {id}");
             return NoContent();
         }
     }

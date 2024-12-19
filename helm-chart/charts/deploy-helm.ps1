@@ -72,23 +72,33 @@ curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft
 Write-Host "Calling web api... " -ForegroundColor Green
 curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
 
-<# curl -v http://localhost:5166/api/WeatherForecast
-curl -v http://localhost:5166/api/WeatherForecast/1
 
-
-Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body '{
+Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
+  -Method POST `
+  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
+  -ContentType "application/json" `
+  -Body '{
     "Date": "2024-12-19",
     "TemperatureC": 22,
     "Summary": "Warm"
-}'
+  }'
 
-Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast" -Method PUT -Headers @{ "Content-Type" = "application/json" } -Body '{
+
+Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
+  -Method PUT `
+  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
+  -ContentType "application/json" `
+  -Body '{
     "Date": "2024-12-19",
     "TemperatureC": 22,
     "Summary": "Warm"
-}'
+  }'
 
 
-Invoke-WebRequest -Uri "http://localhost:5166/api/WeatherForecast/1" -Method DELETE -Headers @{ "Content-Type" = "application/json" } #>
+Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
+  -Method DELETE `
+  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } 
+  
+  
 
 
