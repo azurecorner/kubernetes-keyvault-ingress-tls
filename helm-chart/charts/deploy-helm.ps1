@@ -23,6 +23,7 @@ Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
 
 helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
     --namespace $NAMESPACE  `
+    --create-namespace  `
     --set controller.replicaCount=2 `
     --set controller.nodeSelector."kubernetes\.io/os"=linux  `
     --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz  `
@@ -48,10 +49,17 @@ kubectl get pods --namespace ingress-nginx
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
 kubectl get services --namespace ingress-nginx
 
-#Deploy an additional Helm chart (logcorner-command)
-Write-Host "Deploying logcorner-command chart..." -ForegroundColor Green
+
+Write-Host "Deploying Ingress chart..." -ForegroundColor Green
+$ingressChartName="ingress" 
+helm upgrade --install ingress $ingressChartName 
+
+
+Write-Host "Deploying web api chart..." -ForegroundColor Green
 
 helm upgrade --install datasynchro-api $ChartName 
+
+Write-Host "Deploying web app chart..." -ForegroundColor Green
 
 $webappChartName = "webapp"
 helm upgrade --install datasynchro-app $webappChartName 
@@ -69,9 +77,14 @@ kubectl describe ingress $INGRESS_NAME
 write-host "Calling web app ... " -ForegroundColor Green
 curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
 
-Write-Host "Calling web api... " -ForegroundColor Green
+Write-Host "Calling web api  for all weatherforecast ... " -ForegroundColor Green
 curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
 
+Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
+
+curl -v http://$externalIP/api/weatherforecast/1 -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
+
+Write-Host "Calling web api  for creating weatherforecast  ... " -ForegroundColor Green
 
 Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
   -Method POST `
@@ -83,6 +96,7 @@ Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
     "Summary": "Warm"
   }'
 
+write-host "Calling web api  for updating weatherforecast ... " -ForegroundColor Green
 
 Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
   -Method PUT `
@@ -94,6 +108,7 @@ Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
     "Summary": "Warm"
   }'
 
+write-host "Calling web api  for deleting weatherforecast ... " -ForegroundColor Green
 
 Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
   -Method DELETE `

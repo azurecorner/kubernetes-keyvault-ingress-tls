@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: aksingrestlsacr.azurecr.io/kubernetes-ingress-tls-api
+  pullPolicy: IfNotPresent
+  tag: v4.0.0
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  containerPort: 8080
+
+env:
+  title: "Welcome to Azure Kubernetes Service (AKS)"
+  aspnetcoreEnvironment: "Kubernetes"
+
+

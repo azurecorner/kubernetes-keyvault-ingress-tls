@@ -5,15 +5,6 @@ resource "azurerm_resource_group" "resource_group" {
 
 }
 
-# terraform {
-#   required_providers {
-#     azapi = {
-#       source  = "Azure/azapi"
-#      version = "~>1.5"
-#     }
-#   }
-# }
-
 resource "random_pet" "azurerm_kubernetes_cluster_dns_prefix" {
   prefix = "dns"
 }
@@ -30,6 +21,8 @@ resource "azapi_resource_action" "ssh_public_key_gen" {
   method      = "POST"
 
   response_export_values = ["publicKey", "privateKey"]
+
+  depends_on = [ azapi_resource.ssh_public_key ]
 }
 
 resource "azapi_resource" "ssh_public_key" {
@@ -37,6 +30,7 @@ resource "azapi_resource" "ssh_public_key" {
   name      = random_pet.ssh_key_name.id
   location  = var.resource_group_location
   parent_id = azurerm_resource_group.resource_group.id
+  depends_on = [ azurerm_resource_group.resource_group ]
 }
 
 output "key_data" {
@@ -74,20 +68,22 @@ resource "azurerm_kubernetes_cluster" "aks" {
   key_vault_secrets_provider {
     secret_rotation_enabled = true
   }
-
+depends_on = [ azurerm_resource_group.resource_group ]
 }
 
-resource "azurerm_container_registry" "default" {
+resource "azurerm_container_registry" "container_registry" {
   name                = var.acr_name
   resource_group_name = var.resource_group_name
   location            = var.resource_group_location
   sku                 = var.sku
   admin_enabled       = true
-
+  depends_on = [ azurerm_resource_group.resource_group ]
 }
 
 resource "azurerm_role_assignment" "aks_acr" {
-  scope                = azurerm_container_registry.default.id
+  scope                = azurerm_container_registry.container_registry.id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+
+  depends_on = [ azurerm_kubernetes_cluster.aks, azurerm_container_registry.container_registry ]
 }
