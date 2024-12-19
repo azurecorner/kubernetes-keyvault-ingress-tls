@@ -1,5 +1,6 @@
-$ChartName = "webapi"
-$IMAGE_TAG = "1217"
+$webApiChartName = "webapi"
+$ingressChartName="ingress" 
+$webappChartName = "webapp"
 $NAMESPACE = "ingress-nginx"
 $RESOURCE_GROUP_NAME = "RG-AKS-INGRESS-TLS"
 $CLUSTER_NAME = "aks-ingress-tls"
@@ -51,22 +52,22 @@ kubectl get services --namespace ingress-nginx
 
 
 Write-Host "Deploying Ingress chart..." -ForegroundColor Green
-$ingressChartName="ingress" 
+
 helm upgrade --install ingress $ingressChartName 
 
 
 Write-Host "Deploying web api chart..." -ForegroundColor Green
 
-helm upgrade --install datasynchro-api $ChartName 
+helm upgrade --install datasynchro-api $webApiChartName 
 
 Write-Host "Deploying web app chart..." -ForegroundColor Green
 
-$webappChartName = "webapp"
 helm upgrade --install datasynchro-app $webappChartName 
 
 write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
 
-#kubectl wait --for=condition=ready pod -l app=http-api --timeout=300s
+kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
+kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
 
 kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 
