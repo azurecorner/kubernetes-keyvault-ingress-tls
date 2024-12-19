@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-datasynchro
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - command.cloud-devops-craft.com
+    - query.cloud-devops-craft.com
+    secretName: ingress-tls-csi
+  rules:
+  - host: command.cloud-devops-craft.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: datasynchro-api-http-api-service
+            port:
+              number: 80
+  - host: query.cloud-devops-craft.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: datasynchro-app-http-app-service
+            port:
+              number: 80

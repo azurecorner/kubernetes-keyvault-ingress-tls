@@ -22,15 +22,15 @@ resource "azapi_resource_action" "ssh_public_key_gen" {
 
   response_export_values = ["publicKey", "privateKey"]
 
-  depends_on = [ azapi_resource.ssh_public_key ]
+  depends_on = [azapi_resource.ssh_public_key]
 }
 
 resource "azapi_resource" "ssh_public_key" {
-  type      = "Microsoft.Compute/sshPublicKeys@2022-11-01"
-  name      = random_pet.ssh_key_name.id
-  location  = var.resource_group_location
-  parent_id = azurerm_resource_group.resource_group.id
-  depends_on = [ azurerm_resource_group.resource_group ]
+  type       = "Microsoft.Compute/sshPublicKeys@2022-11-01"
+  name       = random_pet.ssh_key_name.id
+  location   = var.resource_group_location
+  parent_id  = azurerm_resource_group.resource_group.id
+  depends_on = [azurerm_resource_group.resource_group]
 }
 
 output "key_data" {
@@ -68,7 +68,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   key_vault_secrets_provider {
     secret_rotation_enabled = true
   }
-depends_on = [ azurerm_resource_group.resource_group ]
+  depends_on = [azurerm_resource_group.resource_group]
 }
 
 resource "azurerm_container_registry" "container_registry" {
@@ -77,7 +77,7 @@ resource "azurerm_container_registry" "container_registry" {
   location            = var.resource_group_location
   sku                 = var.sku
   admin_enabled       = true
-  depends_on = [ azurerm_resource_group.resource_group ]
+  depends_on          = [azurerm_resource_group.resource_group]
 }
 
 resource "azurerm_role_assignment" "aks_acr" {
@@ -85,5 +85,29 @@ resource "azurerm_role_assignment" "aks_acr" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
 
-  depends_on = [ azurerm_kubernetes_cluster.aks, azurerm_container_registry.container_registry ]
+  depends_on = [azurerm_kubernetes_cluster.aks, azurerm_container_registry.container_registry]
+}
+
+resource "azurerm_key_vault" "key_vault" {
+  name                       = "kv-shared-edusync-dev"
+  location                   = var.resource_group_location
+  resource_group_name        = var.resource_group_name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "standard"
+  soft_delete_retention_days = 7
+  purge_protection_enabled   = false
+}
+
+resource "azurerm_key_vault_access_policy" "vault_access_policy_me" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = "7abf4c5b-9638-4ec4-b830-ede0a8031b25"
+
+  certificate_permissions = [
+    "Get", "List", "Update", "Create", "Import", "Delete", "Recover", "Restore", "Purge"
+  ]
+
+  secret_permissions = [
+    "Get", "List", "Set", "Recover", "Delete", "Purge"
+  ]
 }

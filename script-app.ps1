@@ -28,7 +28,7 @@ if ($LASTEXITCODE -eq 0) {
 
 docker run  --name kubernetes-ingress-tls-demo-api --rm -it -p 8080:8080/tcp -p 8081:8081/tcp ${acrName}.azurecr.io/${imageName}:${imageTag}
 
-curl http://localhost:8080/Home/Index
+# curl http://localhost:8080/Home/Index
 
 # Get the access token from Azure CLI
 $accessToken = az acr login --name $acrName --expose-token --output tsv --query accessToken

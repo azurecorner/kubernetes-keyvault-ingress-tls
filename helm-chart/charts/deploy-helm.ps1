@@ -1,6 +1,7 @@
 $webApiChartName = "webapi"
 $ingressChartName="ingress" 
 $webappChartName = "webapp"
+$secretProviderChartName = "secrets"
 $NAMESPACE = "ingress-nginx"
 $RESOURCE_GROUP_NAME = "RG-AKS-INGRESS-TLS"
 $CLUSTER_NAME = "aks-ingress-tls"
@@ -22,13 +23,21 @@ helm repo update
 Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
 # Deploy the NGINX ingress controller with an external load balancer
 
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
+<# helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
     --namespace $NAMESPACE  `
     --create-namespace  `
     --set controller.replicaCount=2 `
     --set controller.nodeSelector."kubernetes\.io/os"=linux  `
     --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz  `
-    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux
+    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux #>
+
+    helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
+    --namespace $NAMESPACE  `
+    --set controller.replicaCount=2  `
+    --set controller.nodeSelector."kubernetes\.io/os"=linux  `
+    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux  `
+    --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz  `
+    -f extra-volumes.yaml
 
 $ServiceName = "ingress-nginx-controller"
 
@@ -50,13 +59,19 @@ kubectl get pods --namespace ingress-nginx
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
 kubectl get services --namespace ingress-nginx
 
-
 Write-Host "Deploying Ingress chart..." -ForegroundColor Green
 
 helm upgrade --install ingress $ingressChartName 
 
 
-Write-Host "Deploying web api chart..." -ForegroundColor Green
+
+Write-Host "Deploying Secret provider chart..." -ForegroundColor Green
+
+helm upgrade --install secrets-provider $secretProviderChartName 
+
+curl -v -k --resolve query.cloud-devops-craft.com:443:104.42.209.177 https://query.cloud-devops-craft.com
+
+ Write-Host "Deploying web api chart..." -ForegroundColor Green
 
 helm upgrade --install datasynchro-api $webApiChartName 
 
@@ -74,7 +89,7 @@ kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 kubectl describe ingressclasses nginx
 kubectl get services --namespace ingress-nginx
 kubectl describe ingress $INGRESS_NAME
-
+<#
 write-host "Calling web app ... " -ForegroundColor Green
 curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
 
@@ -118,3 +133,4 @@ Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
   
 
 
+ #>
