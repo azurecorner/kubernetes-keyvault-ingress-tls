@@ -96,6 +96,7 @@ resource "azurerm_key_vault" "key_vault" {
   sku_name                   = "standard"
   soft_delete_retention_days = 7
   purge_protection_enabled   = false
+  depends_on = [ azurerm_resource_group.resource_group ]
 }
 
 resource "azurerm_key_vault_access_policy" "vault_access_policy_me" {

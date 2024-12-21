@@ -44,7 +44,6 @@ Export-PfxCertificate -Cert $ssl -FilePath $currentPath\ssl\datasync-ssl.pfx `
     -ChainOption BuildChain -Password $pfxPassword # (read-host -AsSecureString -Prompt "password")
 
 
-
     # Variables
 $vaultName = "kv-shared-edusync-dev"     # Replace with your Key Vault name
 $certificateName = "logcorner-datasync-cert"  # Replace with desired certificate name in Key Vault

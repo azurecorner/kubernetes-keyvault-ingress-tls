@@ -33,6 +33,7 @@ Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
 
     helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
     --namespace $NAMESPACE  `
+    --create-namespace  `
     --set controller.replicaCount=2  `
     --set controller.nodeSelector."kubernetes\.io/os"=linux  `
     --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux  `
@@ -89,7 +90,7 @@ kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 kubectl describe ingressclasses nginx
 kubectl get services --namespace ingress-nginx
 kubectl describe ingress $INGRESS_NAME
-<#
+
 write-host "Calling web app ... " -ForegroundColor Green
 curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
 
@@ -133,4 +134,4 @@ Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
   
 
 
- #>
+ 
