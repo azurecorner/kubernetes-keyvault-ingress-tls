@@ -13,6 +13,15 @@ kubectl get deployments --all-namespaces=true
 Write-Host "Verify the Azure Key Vault provider for Secrets Store CSI Driver installation..." -ForegroundColor Green
 kubectl get pods -n kube-system -l 'app in (secrets-store-csi-driver,secrets-store-provider-azure)'
 # Add the ingress-nginx Helm repository if not already added
+
+Write-Host "Deploying Secret provider chart..." -ForegroundColor Green
+
+kubectl create namespace $NAMESPACE
+helm upgrade --install secrets-provider $secretProviderChartName 
+
+write-host "Waiting for the secret-provider pod to be ready... " -ForegroundColor Green
+kubectl get SecretProviderClass -n $NAMESPACE 
+
 Write-Host "Adding the ingress-nginx repository..." -ForegroundColor Green
  # Add the ingress-nginx repository
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -20,16 +29,8 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 # Update the Helm repo to ensure we have the latest charts
 helm repo update
 
-Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
+ Write-Host "Deploying the NGINX ingress controller..." -ForegroundColor Green
 # Deploy the NGINX ingress controller with an external load balancer
-
-<# helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
-    --namespace $NAMESPACE  `
-    --create-namespace  `
-    --set controller.replicaCount=2 `
-    --set controller.nodeSelector."kubernetes\.io/os"=linux  `
-    --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz  `
-    --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux #>
 
     helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx  `
     --namespace $NAMESPACE  `
@@ -54,25 +55,18 @@ do {
 
 Write-Host "Service is ready! External IP: $externalIP" -ForegroundColor Green
 
+kubectl get secret -n $NAMESPACE
+
 #Check the status of the pods to see if the ingress controller is online.
 kubectl get pods --namespace ingress-nginx
 
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
 kubectl get services --namespace ingress-nginx
 
-Write-Host "Deploying Ingress chart..." -ForegroundColor Green
 
-helm upgrade --install ingress $ingressChartName 
+# curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
 
-
-
-Write-Host "Deploying Secret provider chart..." -ForegroundColor Green
-
-helm upgrade --install secrets-provider $secretProviderChartName 
-
-curl -v -k --resolve query.cloud-devops-craft.com:443:104.42.209.177 https://query.cloud-devops-craft.com
-
- Write-Host "Deploying web api chart..." -ForegroundColor Green
+Write-Host "Deploying web api chart..." -ForegroundColor Green
 
 helm upgrade --install datasynchro-api $webApiChartName 
 
@@ -87,51 +81,62 @@ kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout
 
 kubectl get pods --namespace  $WORKLOAD_NAMESPACE
 
+
+Write-Host "Deploying Ingress chart..." -ForegroundColor Green
+
+helm upgrade --install ingress $ingressChartName 
+
+write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
 kubectl describe ingressclasses nginx
 kubectl get services --namespace ingress-nginx
 kubectl describe ingress $INGRESS_NAME
 
-write-host "Calling web app ... " -ForegroundColor Green
-curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
+write-host "ping  $externalIP .. " -ForegroundColor Green
+ping $externalIP
 
-Write-Host "Calling web api  for all weatherforecast ... " -ForegroundColor Green
-curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
+# curl -v -k --resolve demo.azure.com:443:EXTERNAL_IP https://demo.azure.com
 
-Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
+# write-host "Calling web app ... " -ForegroundColor Green
+# curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
 
-curl -v http://$externalIP/api/weatherforecast/1 -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
+# Write-Host "Calling web api  for all weatherforecast ... " -ForegroundColor Green
+# curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
 
-Write-Host "Calling web api  for creating weatherforecast  ... " -ForegroundColor Green
+# Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
 
-Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
-  -Method POST `
-  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
-  -ContentType "application/json" `
-  -Body '{
-    "Date": "2024-12-19",
-    "TemperatureC": 22,
-    "Summary": "Warm"
-  }'
+# curl -v http://$externalIP/api/weatherforecast/1 -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
 
-write-host "Calling web api  for updating weatherforecast ... " -ForegroundColor Green
+# Write-Host "Calling web api  for creating weatherforecast  ... " -ForegroundColor Green
 
-Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
-  -Method PUT `
-  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
-  -ContentType "application/json" `
-  -Body '{
-    "Date": "2024-12-19",
-    "TemperatureC": 22,
-    "Summary": "Warm"
-  }'
+# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
+#   -Method POST `
+#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
+#   -ContentType "application/json" `
+#   -Body '{
+#     "Date": "2024-12-19",
+#     "TemperatureC": 22,
+#     "Summary": "Warm"
+#   }'
 
-write-host "Calling web api  for deleting weatherforecast ... " -ForegroundColor Green
+# write-host "Calling web api  for updating weatherforecast ... " -ForegroundColor Green
 
-Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
-  -Method DELETE `
-  -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } 
+# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
+#   -Method PUT `
+#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
+#   -ContentType "application/json" `
+#   -Body '{
+#     "Date": "2024-12-19",
+#     "TemperatureC": 22,
+#     "Summary": "Warm"
+#   }'
+
+# write-host "Calling web api  for deleting weatherforecast ... " -ForegroundColor Green
+
+# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
+#   -Method DELETE `
+#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } 
   
   
 
 
- 
+  
