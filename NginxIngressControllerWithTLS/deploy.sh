@@ -46,5 +46,9 @@ kubectl apply -f hello-world-ingress.yaml -n $NAMESPACE
 EXTERNAL_IP=$(kubectl get service --namespace $NAMESPACE --selector app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
 echo "Public IP: ${EXTERNAL_IP}"
 
+kubectl apply -f pod.yaml -n $NAMESPACE
 
-curl -v -k --resolve demo.cloud-devops-craft.com:443:EXTERNAL_IP https://demo.cloud-devops-craft.com
+kubectl exec -n ingress-basic busybox-secrets-store-inline-user-msi -- ls /mnt/secrets-store/
+
+
+# curl -v -k --resolve demo.cloud-devops-craft.com:443:EXTERNAL_IP https://demo.cloud-devops-craft.com
