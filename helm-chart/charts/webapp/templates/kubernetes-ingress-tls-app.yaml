@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "aks-command-app.fullname" . }}-deployment
-  namespace: default
+  namespace: ingress-nginx
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "aks-command-app.fullname" . }}-service
-  namespace: default
+  namespace: ingress-nginx
 spec:
   type: {{ .Values.service.type }}
   ports:

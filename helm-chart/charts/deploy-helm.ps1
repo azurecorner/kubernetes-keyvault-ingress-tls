@@ -55,44 +55,60 @@ do {
 
 Write-Host "Service is ready! External IP: $externalIP" -ForegroundColor Green
 
-kubectl get secret -n $NAMESPACE
+# kubectl get secret -n $NAMESPACE
 
-#Check the status of the pods to see if the ingress controller is online.
-kubectl get pods --namespace ingress-nginx
+# #Check the status of the pods to see if the ingress controller is online.
+# kubectl get pods --namespace ingress-nginx
 
-#Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
-kubectl get services --namespace ingress-nginx
-
-
-# curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
-
-Write-Host "Deploying web api chart..." -ForegroundColor Green
-
-helm upgrade --install datasynchro-api $webApiChartName 
-
-Write-Host "Deploying web app chart..." -ForegroundColor Green
-
-helm upgrade --install datasynchro-app $webappChartName 
-
-write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
-
-kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
-kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
-
-kubectl get pods --namespace  $WORKLOAD_NAMESPACE
+# #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
+# kubectl get services --namespace ingress-nginx
 
 
-Write-Host "Deploying Ingress chart..." -ForegroundColor Green
+# # curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
 
-helm upgrade --install ingress $ingressChartName 
+# Write-Host "Deploying web api chart..." -ForegroundColor Green
 
-write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
-kubectl describe ingressclasses nginx
-kubectl get services --namespace ingress-nginx
-kubectl describe ingress $INGRESS_NAME
+# helm upgrade --install datasynchro-api $webApiChartName 
 
-write-host "ping  $externalIP .. " -ForegroundColor Green
-ping $externalIP
+# Write-Host "Deploying web app chart..." -ForegroundColor Green
+
+# helm upgrade --install datasynchro-app $webappChartName 
+
+# write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
+
+# kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
+# kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
+
+# kubectl get pods --namespace  $WORKLOAD_NAMESPACE
+
+
+#  echo -e "\e[32mDeploying web api chart..." 
+
+# helm upgrade --install datasynchro-api $webApiChartName 
+
+# echo -e "\e[32mDeploying web app chart..." 
+
+# helm upgrade --install datasynchro-app $webappChartName 
+
+# echo -e "\e[32mWaiting for the logcorner-command pod to be ready... " 
+
+# kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
+# kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
+
+# kubectl get pods --namespace  $WORKLOAD_NAMESPACE
+
+
+# Write-Host "Deploying Ingress chart..." -ForegroundColor Green
+
+# helm upgrade --install ingress $ingressChartName 
+
+# write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
+# kubectl describe ingressclasses nginx
+# kubectl get services --namespace ingress-nginx
+# kubectl describe ingress $INGRESS_NAME
+
+# write-host "ping  $externalIP .. " -ForegroundColor Green
+# ping $externalIP
 
 # curl -v -k --resolve demo.azure.com:443:EXTERNAL_IP https://demo.azure.com
 
