@@ -4,6 +4,7 @@ $webappChartName = "webapp"
 $secretProviderChartName = "secrets"
 $NAMESPACE = "ingress-nginx"
 $RESOURCE_GROUP_NAME = "RG-AKS-INGRESS-TLS"
+$RESOURCE_GROUP_LOCATION = "eastus"
 $CLUSTER_NAME = "aks-ingress-tls"
 $WORKLOAD_NAMESPACE = "default"
 $INGRESS_NAME="ingress-datasynchro"
@@ -14,10 +15,15 @@ Write-Host "Verify the Azure Key Vault provider for Secrets Store CSI Driver ins
 kubectl get pods -n kube-system -l 'app in (secrets-store-csi-driver,secrets-store-provider-azure)'
 # Add the ingress-nginx Helm repository if not already added
 
+$TENANT_ID = "f12a747a-cddf-4426-96ff-ebe055e215a3"
+write-host "Getting the user-assigned identity ID for the Azure Key Vault provider for Secrets Store CSI Driver..." -ForegroundColor Green
+$AZURE_KEYVAULT_SECRETS_PROVIDER_USER_ASSIGNED_IDENTITYID=az identity show --resource-group "MC_$($RESOURCE_GROUP_NAME)_$($CLUSTER_NAME)_$($RESOURCE_GROUP_LOCATION)"  --name "azurekeyvaultsecretsprovider-$CLUSTER_NAME" --query 'clientId'
+write-host "User-assigned identity ID: $AZURE_KEYVAULT_SECRETS_PROVIDER_USER_ASSIGNED_IDENTITYID" -ForegroundColor Green
+
 Write-Host "Deploying Secret provider chart..." -ForegroundColor Green
 
 kubectl create namespace $NAMESPACE
-helm upgrade --install secrets-provider $secretProviderChartName 
+helm upgrade --install secrets-provider $secretProviderChartName  --set tenantId=$TENANT_ID  --set userAssignedIdentityID=$AZURE_KEYVAULT_SECRETS_PROVIDER_USER_ASSIGNED_IDENTITYID
 
 write-host "Waiting for the secret-provider pod to be ready... " -ForegroundColor Green
 kubectl get SecretProviderClass -n $NAMESPACE 
@@ -55,72 +61,61 @@ do {
 
 Write-Host "Service is ready! External IP: $externalIP" -ForegroundColor Green
 
-# kubectl get secret -n $NAMESPACE
+kubectl get secret -n $NAMESPACE
 
-# #Check the status of the pods to see if the ingress controller is online.
-# kubectl get pods --namespace ingress-nginx
+#Check the status of the pods to see if the ingress controller is online.
+kubectl get pods --namespace ingress-nginx
 
-# #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
-# kubectl get services --namespace ingress-nginx
-
-
-# # curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
-
-# Write-Host "Deploying web api chart..." -ForegroundColor Green
-
-# helm upgrade --install datasynchro-api $webApiChartName 
-
-# Write-Host "Deploying web app chart..." -ForegroundColor Green
-
-# helm upgrade --install datasynchro-app $webappChartName 
-
-# write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
-
-# kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
-# kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
-
-# kubectl get pods --namespace  $WORKLOAD_NAMESPACE
+#Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
+kubectl get services --namespace ingress-nginx
 
 
-#  echo -e "\e[32mDeploying web api chart..." 
+# curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
 
-# helm upgrade --install datasynchro-api $webApiChartName 
+Write-Host "Deploying web api chart..." -ForegroundColor Green
 
-# echo -e "\e[32mDeploying web app chart..." 
+helm upgrade --install datasynchro-api $webApiChartName 
 
-# helm upgrade --install datasynchro-app $webappChartName 
+Write-Host "Deploying web app chart..." -ForegroundColor Green
 
-# echo -e "\e[32mWaiting for the logcorner-command pod to be ready... " 
+helm upgrade --install datasynchro-app $webappChartName 
 
-# kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
-# kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
+write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
 
-# kubectl get pods --namespace  $WORKLOAD_NAMESPACE
+kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
+kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
+
+kubectl get pods --namespace  $NAMESPACE
+
+Write-Host "Deploying Ingress chart..." -ForegroundColor Green
+
+helm upgrade --install ingress $ingressChartName 
+
+write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
+kubectl describe ingressclasses nginx
+kubectl get services --namespace ingress-nginx
+kubectl describe ingress $INGRESS_NAME
+
+write-host "ping  $externalIP .. " -ForegroundColor Green
+ping $externalIP
 
 
-# Write-Host "Deploying Ingress chart..." -ForegroundColor Green
 
-# helm upgrade --install ingress $ingressChartName 
+write-host "Calling web app : query.cloud-devops-craft.com:443:$externalIP ... " -ForegroundColor Green
+ 
+ # Define the curl command
+$response = & "C:\Windows\System32\curl.exe" -s -o NUL -w "%{http_code}" -k --resolve query.cloud-devops-craft.com:443:$externalIP https://query.cloud-devops-craft.com
 
-# write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
-# kubectl describe ingressclasses nginx
-# kubectl get services --namespace ingress-nginx
-# kubectl describe ingress $INGRESS_NAME
+# Output the status code
+Write-Output "Status Code: $response"
 
-# write-host "ping  $externalIP .. " -ForegroundColor Green
-# ping $externalIP
+Write-Host "Calling web api  for all weatherforecast : https://command.cloud-devops-craft.com/api/weatherforecast ... " -ForegroundColor Green
 
-# curl -v -k --resolve demo.azure.com:443:EXTERNAL_IP https://demo.azure.com
+& "C:\Windows\System32\curl.exe" -v -k --resolve command.cloud-devops-craft.com:443:$externalIP  https://command.cloud-devops-craft.com/api/weatherforecast
 
-# write-host "Calling web app ... " -ForegroundColor Green
-# curl -v http://$externalIP/ -Headers @{ "Host" = "app.ingress.cloud-devops-craft.com" }
+Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
 
-# Write-Host "Calling web api  for all weatherforecast ... " -ForegroundColor Green
-# curl -v http://$externalIP/api/weatherforecast -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
-
-# Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
-
-# curl -v http://$externalIP/api/weatherforecast/1 -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" }
+& "C:\Windows\System32\curl.exe" -v -k --resolve command.cloud-devops-craft.com:443:$externalIP  https://command.cloud-devops-craft.com/api/weatherforecast/1
 
 # Write-Host "Calling web api  for creating weatherforecast  ... " -ForegroundColor Green
 
