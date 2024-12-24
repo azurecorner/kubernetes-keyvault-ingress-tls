@@ -1,14 +1,14 @@
 data "azurerm_user_assigned_identity" "azurekeyvaultsecretsprovider_assigned_identity" {
   name                = "azurekeyvaultsecretsprovider-${var.aks_name}"
   resource_group_name = "MC_${var.resource_group_name}_${var.aks_name}_${var.resource_group_location}" # MC_rg-edusync-dev_aks-edusync-dev_eastus
-  depends_on = [ azurerm_kubernetes_cluster.aks ]
+  depends_on          = [azurerm_kubernetes_cluster.aks]
 }
 
 resource "azurerm_role_assignment" "azurekeyvaultsecretsprovider_assigned_identity" {
   scope                = azurerm_key_vault.key_vault.id
   role_definition_name = "Key Vault Certificates Officer"
   principal_id         = data.azurerm_user_assigned_identity.azurekeyvaultsecretsprovider_assigned_identity.principal_id
-depends_on = [ azurerm_key_vault.key_vault ]
+  depends_on           = [azurerm_key_vault.key_vault]
 }
 
 resource "azurerm_key_vault_access_policy" "vault_access_policy_managed_id" {
@@ -23,5 +23,5 @@ resource "azurerm_key_vault_access_policy" "vault_access_policy_managed_id" {
   secret_permissions = [
     "Get", "List", "Set", "Recover"
   ]
-depends_on = [ azurerm_key_vault.key_vault ]
+  depends_on = [azurerm_key_vault.key_vault]
 }

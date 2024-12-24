@@ -82,8 +82,8 @@ helm upgrade --install datasynchro-app $webappChartName
 
 write-host "Waiting for the logcorner-command pod to be ready... " -ForegroundColor Green
 
-kubectl wait --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
-kubectl wait --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
+kubectl wait --namespace  $NAMESPACE --for=condition=ready pod -l app=datasynchro-api-http-api --timeout=300s
+kubectl wait --namespace  $NAMESPACE --for=condition=ready pod -l app=datasynchro-app-http-app --timeout=300s
 
 kubectl get pods --namespace  $NAMESPACE
 

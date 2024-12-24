@@ -1,18 +1,16 @@
-replicaCount: 1
+namespace: ingress-nginx
+ingressName: ingress-datasynchro
+secretName: ingress-tls-csi
+secretProviderClassName: azure-tls
 
-image:
-  repository: aksingrestlsacr.azurecr.io/kubernetes-ingress-tls-api
-  pullPolicy: IfNotPresent
-  tag: v4.0.0
-
+hosts:
+  query: query.cloud-devops-craft.com 
+  command: command.cloud-devops-craft.com
+ 
 service:
-  type: ClusterIP
-  port: 80
-  targetPort: 8080
-  containerPort: 8080
+  query: datasynchro-app-http-app-service
+  command: datasynchro-api-http-api-service
 
-env:
-  title: "Welcome to Azure Kubernetes Service (AKS)"
-  aspnetcoreEnvironment: "Kubernetes"
-
-
+volume:
+  name: secrets-store-inline
+  mountPath: "/mnt/secrets-store"

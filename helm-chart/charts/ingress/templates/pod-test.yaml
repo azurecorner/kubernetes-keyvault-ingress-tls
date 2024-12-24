@@ -3,7 +3,7 @@ kind: Pod
 apiVersion: v1
 metadata:
   name: busybox-secrets-store-inline-user-msi
-  namespace: ingress-nginx
+  namespace: {{ .Values.namespace }}
 spec:
   containers:
     - name: busybox
@@ -12,13 +12,13 @@ spec:
         - "/bin/sleep"
         - "10000"
       volumeMounts:
-      - name: secrets-store-inline
-        mountPath: "/mnt/secrets-store"
+      - name: {{ .Values.volume.name }}
+        mountPath: "{{ .Values.volume.mountPath }}"
         readOnly: true
   volumes:
-  - name: secrets-store-inline
+  - name: {{ .Values.volume.name }}
     csi:
       driver: secrets-store.csi.k8s.io
       readOnly: true
       volumeAttributes:
-        secretProviderClass: "azure-tls"
+        secretProviderClass: "{{ .Values.secretProviderClassName }}"

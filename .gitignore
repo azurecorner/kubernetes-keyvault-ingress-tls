@@ -25,3 +25,7 @@ ssl/datasync-signing-root.cer
 ssl/datasync-signing-root.pfx
 ssl/datasync-ssl.cer
 ssl/datasync-ssl.pfx
+ssl/datasync-signing-root.cer
+ssl/datasync-signing-root.pfx
+ssl/datasync-ssl.cer
+ssl/datasync-ssl.pfx
