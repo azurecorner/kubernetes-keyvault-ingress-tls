@@ -6,7 +6,6 @@ $NAMESPACE = "ingress-nginx"
 $RESOURCE_GROUP_NAME = "RG-AKS-INGRESS-TLS"
 $RESOURCE_GROUP_LOCATION = "eastus"
 $CLUSTER_NAME = "aks-ingress-tls"
-$WORKLOAD_NAMESPACE = "default"
 $INGRESS_NAME="ingress-datasynchro"
 az aks get-credentials --resource-group $RESOURCE_GROUP_NAME --name $CLUSTER_NAME --overwrite-existing
 kubectl get deployments --all-namespaces=true
@@ -69,9 +68,6 @@ kubectl get pods --namespace ingress-nginx
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
 kubectl get services --namespace ingress-nginx
 
-
-# curl -v -k --resolve query.cloud-devops-craft.com:443:13.64.239.163 https://query.cloud-devops-craft.com
-
 Write-Host "Deploying web api chart..." -ForegroundColor Green
 
 helm upgrade --install datasynchro-api $webApiChartName 
@@ -98,7 +94,6 @@ kubectl describe ingress $INGRESS_NAME
 
 write-host "ping  $externalIP .. " -ForegroundColor Green
 ping $externalIP
-
 
 write-host "Calling web app : query.cloud-devops-craft.com:443:$externalIP ... " -ForegroundColor Green
  
