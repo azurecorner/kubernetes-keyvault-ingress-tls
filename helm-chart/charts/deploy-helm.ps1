@@ -100,7 +100,6 @@ write-host "ping  $externalIP .. " -ForegroundColor Green
 ping $externalIP
 
 
-
 write-host "Calling web app : query.cloud-devops-craft.com:443:$externalIP ... " -ForegroundColor Green
  
  # Define the curl command
@@ -117,36 +116,7 @@ Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Gr
 
 & "C:\Windows\System32\curl.exe" -v -k --resolve command.cloud-devops-craft.com:443:$externalIP  https://command.cloud-devops-craft.com/api/weatherforecast/1
 
-# Write-Host "Calling web api  for creating weatherforecast  ... " -ForegroundColor Green
 
-# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
-#   -Method POST `
-#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
-#   -ContentType "application/json" `
-#   -Body '{
-#     "Date": "2024-12-19",
-#     "TemperatureC": 22,
-#     "Summary": "Warm"
-#   }'
-
-# write-host "Calling web api  for updating weatherforecast ... " -ForegroundColor Green
-
-# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast" `
-#   -Method PUT `
-#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } `
-#   -ContentType "application/json" `
-#   -Body '{
-#     "Date": "2024-12-19",
-#     "TemperatureC": 22,
-#     "Summary": "Warm"
-#   }'
-
-# write-host "Calling web api  for deleting weatherforecast ... " -ForegroundColor Green
-
-# Invoke-RestMethod -Uri "http://$externalIP/api/weatherforecast/1" `
-#   -Method DELETE `
-#   -Headers @{ "Host" = "api.ingress.cloud-devops-craft.com" } 
-  
   
 
 
