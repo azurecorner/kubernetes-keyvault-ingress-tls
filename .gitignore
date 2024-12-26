@@ -29,3 +29,5 @@ ssl/datasync-signing-root.cer
 ssl/datasync-signing-root.pfx
 ssl/datasync-ssl.cer
 ssl/datasync-ssl.pfx
+terraform/main.tfplan
+helm-chart/charts/kubernetes-nginx-ingress-tls - Shortcut.lnk

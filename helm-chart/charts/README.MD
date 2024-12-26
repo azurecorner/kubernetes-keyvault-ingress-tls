@@ -15,3 +15,7 @@ kubectl exec busybox-certificate-store-inline-user-msi -- cat /mnt/certificate-s
 https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-identity-access?tabs=azure-portal&pivots=access-with-a-user-assigned-managed-identity
 https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-nginx-tls
 https://medium.com/hedgus/azure-key-vault-provider-for-secrets-store-csi-driver-in-an-azure-kubernetes-service-aks-56de3fe6c9b4
+
+# Using Nginx Ingress Controller and Cert-Manager for HTTPS with Let’s Encrypt ==> 
+
+https://dev.to/hkhelil/using-nginx-ingress-controller-and-cert-manager-for-https-with-lets-encrypt-2flh

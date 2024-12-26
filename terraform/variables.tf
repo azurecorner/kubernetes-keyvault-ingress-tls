@@ -17,12 +17,6 @@ variable "user_assigned_identity_name" {
 
 }
 
-# variable "service_principal_name" {
-#   type        = string
-#   description = "The name of the service principal."
-
-# }
-
 #---------------   azure kubernetes services ----------------------------------------
 variable "aks_name" {
   type        = string
@@ -37,11 +31,14 @@ variable "node_count" {
 }
 
 variable "load_balancer_sku" {
-  default = "standard"
+  type        = string
+  default     = "standard"
+  description = "value for load balancer sku"
 }
 
 variable "vm_size" {
-  default = "Standard_D2_v2"
+  default     = "Standard_D2_v2"
+  description = "value for vm size"
 }
 variable "username" {
   type        = string
@@ -50,10 +47,26 @@ variable "username" {
 }
 
 variable "acr_name" {
-  default = "aksingrestlsacr"
+  type        = string
+  default     = "aksingrestlsacr"
+  description = "value for acr name"
 }
 
 variable "sku" {
-  default = "Standard"
+  type        = string
+  default     = "Standard"
+  description = "value for acr sku"
 
+}
+
+variable "key_vault_name" {
+  type        = string
+  default     = "aks-ingress-tls-kv"
+  description = "value for key vault name"
+
+}
+
+variable "admin_user_object_id" {
+  type        = string
+  description = "The object id of the admin user."
 }
