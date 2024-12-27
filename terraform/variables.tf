@@ -61,7 +61,7 @@ variable "sku" {
 
 variable "key_vault_name" {
   type        = string
-  default     = "aks-ingress-tls-kv"
+  default     = "kv-shared-edusync-dev"
   description = "value for key vault name"
 
 }
