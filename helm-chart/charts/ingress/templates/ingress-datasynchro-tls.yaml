@@ -7,27 +7,27 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.hosts.command }}
-    - {{ .Values.hosts.query }}
+    - {{ .Values.hosts.webapi }}
+    - {{ .Values.hosts.webapp }}
     secretName: {{ .Values.secretName }}
   rules:
-  - host: {{ .Values.hosts.command }}
+  - host: {{ .Values.hosts.webapi }}
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: {{ .Values.service.command }}
+            name: {{ .Values.service.webapi }}
             port:
               number: 80
-  - host: {{ .Values.hosts.query }}
+  - host: {{ .Values.hosts.webapp }}
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: {{ .Values.service.query }}
+            name: {{ .Values.service.webapp }}
             port:
               number: 80

@@ -4,7 +4,7 @@ $acrName = "aksingrestlsacr"  # Name of your Azure Container Registry (ACR)
 
  #  *************************************** web api ***************************************
 $imageName = "kubernetes-ingress-tls-api"  # Name of the image
-$imageTag = "v4.0.0"  # Tag for the image
+$imageTag = "v1.0.0"  # Tag for the image
 
 # Get the full path to the current script location
 $scriptPath = (Get-Location).Path  # Current folder path where the script is running

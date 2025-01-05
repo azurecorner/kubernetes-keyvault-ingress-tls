@@ -23,23 +23,23 @@ $root = New-SelfSignedCertificate -Type Custom -KeySpec Signature `
 # Create the wildcard SSL cert.
 
 Write-Host "Create the wildcard SSL cert"
-$ssl = New-SelfSignedCertificate -Type Custom -DnsName "*.cloud-devops-craft.com","cloud-devops-craft.com" `
+$ssl = New-SelfSignedCertificate -Type Custom -DnsName "*.$domain",$domain `
     -KeySpec Signature `
-    -Subject "CN=*.cloud-devops-craft.com" -KeyExportPolicy Exportable `
+    -Subject "CN=*.$domain" -KeyExportPolicy Exportable `
     -HashAlgorithm sha256 -KeyLength 2048 `
     -CertStoreLocation "Cert:\CurrentUser\My" `
     -Signer $root
 
     # Export CER of the root and SSL certs
 Write-Host "Export CER of the root and SSL certs"
-Export-Certificate -Type CERT -Cert $root -FilePath $currentPath\ssl\datasync-signing-root.cer
+# Export-Certificate -Type CERT -Cert $root -FilePath $currentPath\ssl\datasync-signing-root.cer
 Export-Certificate -Type CERT -Cert $ssl -FilePath $currentPath\ssl\datasync-ssl.cer
 
 # Export PFX of the root and SSL certs
 Write-Host "Export PFX of the root and SSL certs"
 
-Export-PfxCertificate -Cert $root -FilePath $currentPath\ssl\datasync-signing-root.pfx `
-    -Password $pfxPassword #(read-host -AsSecureString -Prompt "password")
+<# Export-PfxCertificate -Cert $root -FilePath $currentPath\ssl\datasync-signing-root.pfx `
+    -Password $pfxPassword #(read-host -AsSecureString -Prompt "password") #>
 Export-PfxCertificate -Cert $ssl -FilePath $currentPath\ssl\datasync-ssl.pfx `
     -ChainOption BuildChain -Password $pfxPassword # (read-host -AsSecureString -Prompt "password")
 
@@ -56,7 +56,7 @@ Import-AzKeyVaultCertificate -VaultName $vaultName `
     -FilePath $pfxFilePath `
     -Password $pfxPassword
 
-# Upload the PFX certificate root to Azure Key Vault
+<# # Upload the PFX certificate root to Azure Key Vault
 $certificateName = "logcorner-datasync-cert-root"  # Replace with desired certificate name in Key Vault
 $pfxFilePath = "$currentPath\ssl\datasync-signing-root.pfx" # Path to your PFX file
 #####$pfxPassword = Read-Host -AsSecureString -Prompt "Enter PFX password" # Securely input PFX password
@@ -66,3 +66,4 @@ Import-AzKeyVaultCertificate -VaultName $vaultName `
     -Name $certificateName `
     -FilePath $pfxFilePath `
     -Password $pfxPassword
+ #>

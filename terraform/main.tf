@@ -4,9 +4,7 @@ resource "azurerm_resource_group" "resource_group" {
   location = var.resource_group_location
 }
 
-resource "random_pet" "azurerm_kubernetes_cluster_dns_prefix" {
-  prefix = "dns"
-}
+
 
 resource "random_pet" "ssh_key_name" {
   prefix    = "ssh"
@@ -30,8 +28,8 @@ resource "azapi_resource" "ssh_public_key" {
   depends_on = [azurerm_resource_group.resource_group]
 }
 
-output "key_data" {
-  value = azapi_resource_action.ssh_public_key_gen.output.publicKey
+resource "random_pet" "azurerm_kubernetes_cluster_dns_prefix" {
+  prefix = "dns"
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
@@ -77,13 +75,6 @@ resource "azurerm_container_registry" "container_registry" {
   depends_on          = [azurerm_resource_group.resource_group]
 }
 
-resource "azurerm_role_assignment" "aks_acr" {
-  scope                = azurerm_container_registry.container_registry.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
-  depends_on           = [azurerm_kubernetes_cluster.aks, azurerm_container_registry.container_registry]
-}
-
 resource "azurerm_key_vault" "key_vault" {
   name                       = var.key_vault_name
   location                   = var.resource_group_location
@@ -96,40 +87,6 @@ resource "azurerm_key_vault" "key_vault" {
 }
 
 
-resource "azurerm_role_assignment" "azurekeyvaultsecretsprovider_assigned_identity" {
-  scope                = azurerm_key_vault.key_vault.id
-  role_definition_name = "Key Vault Certificates Officer"
-  principal_id         = data.azurerm_user_assigned_identity.azurekeyvaultsecretsprovider_assigned_identity.principal_id
-  depends_on           = [azurerm_key_vault.key_vault]
-}
-
-resource "azurerm_key_vault_access_policy" "vault_access_policy_managed_id" {
-  key_vault_id = azurerm_key_vault.key_vault.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-
-  certificate_permissions = [
-    "Get", "List"
-  ]
-
-  object_id = data.azurerm_user_assigned_identity.azurekeyvaultsecretsprovider_assigned_identity.principal_id
-  secret_permissions = [
-    "Get", "List", "Set", "Recover"
-  ]
-  depends_on = [azurerm_key_vault.key_vault, azurerm_kubernetes_cluster.aks]
-}
 
 
-resource "azurerm_key_vault_access_policy" "vault_access_policy_me" {
-  key_vault_id = azurerm_key_vault.key_vault.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.admin_user_object_id
 
-  certificate_permissions = [
-    "Get", "List", "Update", "Create", "Import", "Delete", "Recover", "Restore", "Purge"
-  ]
-
-  secret_permissions = [
-    "Get", "List", "Set", "Recover", "Delete", "Purge"
-  ]
-  depends_on = [azurerm_key_vault.key_vault]
-}

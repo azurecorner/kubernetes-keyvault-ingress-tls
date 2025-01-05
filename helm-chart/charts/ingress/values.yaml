@@ -4,12 +4,12 @@ secretName: ingress-tls-csi
 secretProviderClassName: azure-tls
 
 hosts:
-  query: query.cloud-devops-craft.com 
-  command: command.cloud-devops-craft.com
+  webapp: app.cloud-devops-craft.com 
+  webapi: api.cloud-devops-craft.com
  
 service:
-  query: datasynchro-app-http-app-service
-  command: datasynchro-api-http-api-service
+  webapp: datasynchro-app-http-app-service
+  webapi: datasynchro-api-http-api-service
 
 volume:
   name: secrets-store-inline

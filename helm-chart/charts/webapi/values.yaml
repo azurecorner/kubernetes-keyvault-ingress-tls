@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: aksingrestlsacr.azurecr.io/kubernetes-ingress-tls-api
   pullPolicy: IfNotPresent
-  tag: v4.0.0
+  tag: v1.0.0
 
 service:
   type: ClusterIP

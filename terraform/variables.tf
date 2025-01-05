@@ -37,6 +37,7 @@ variable "load_balancer_sku" {
 }
 
 variable "vm_size" {
+  type        = string
   default     = "Standard_D2_v2"
   description = "value for vm size"
 }

@@ -63,10 +63,10 @@ Write-Host "Service is ready! External IP: $externalIP" -ForegroundColor Green
 kubectl get secret -n $NAMESPACE
 
 #Check the status of the pods to see if the ingress controller is online.
-kubectl get pods --namespace ingress-nginx
+kubectl get pods -n $NAMESPACE
 
 #Now let's check to see if the service is online. This of type LoadBalancer, so do you have an EXTERNAL-IP?
-kubectl get services --namespace ingress-nginx
+kubectl get services -n $NAMESPACE
 
 Write-Host "Deploying web api chart..." -ForegroundColor Green
 
@@ -89,27 +89,27 @@ helm upgrade --install ingress $ingressChartName
 
 write-host "Waiting for the ingress pod to be ready... " -ForegroundColor Green
 kubectl describe ingressclasses nginx
-kubectl get services --namespace ingress-nginx
-kubectl describe ingress $INGRESS_NAME
+kubectl get services -n $NAMESPACE
+kubectl describe ingress $INGRESS_NAME -n $NAMESPACE
 
 write-host "ping  $externalIP .. " -ForegroundColor Green
 ping $externalIP
 
-write-host "Calling web app : query.cloud-devops-craft.com:443:$externalIP ... " -ForegroundColor Green
+write-host "Calling web app : app.cloud-devops-craft.com:443:$externalIP ... " -ForegroundColor Green
  
  # Define the curl command
-$response = & "C:\Windows\System32\curl.exe" -s -o NUL -w "%{http_code}" -k --resolve query.cloud-devops-craft.com:443:$externalIP https://query.cloud-devops-craft.com
+$response = & "C:\Windows\System32\curl.exe" -s -o NUL -w "%{http_code}" -k --resolve app.cloud-devops-craft.com:443:$externalIP https://app.cloud-devops-craft.com
 
 # Output the status code
 Write-Output "Status Code: $response"
 
-Write-Host "Calling web api  for all weatherforecast : https://command.cloud-devops-craft.com/api/weatherforecast ... " -ForegroundColor Green
+Write-Host "Calling web api  for all weatherforecast : https://api.cloud-devops-craft.com/api/weatherforecast ... " -ForegroundColor Green
 
-& "C:\Windows\System32\curl.exe" -v -k --resolve command.cloud-devops-craft.com:443:$externalIP  https://command.cloud-devops-craft.com/api/weatherforecast
+& "C:\Windows\System32\curl.exe" -v -k --resolve api.cloud-devops-craft.com:443:$externalIP  https://api.cloud-devops-craft.com/api/weatherforecast
 
 Write-Host "Calling web api  for weatherforecast by id ... " -ForegroundColor Green
 
-& "C:\Windows\System32\curl.exe" -v -k --resolve command.cloud-devops-craft.com:443:$externalIP  https://command.cloud-devops-craft.com/api/weatherforecast/1
+& "C:\Windows\System32\curl.exe" -v -k --resolve api.cloud-devops-craft.com:443:$externalIP  https://api.cloud-devops-craft.com/api/weatherforecast/1
 
 
   
