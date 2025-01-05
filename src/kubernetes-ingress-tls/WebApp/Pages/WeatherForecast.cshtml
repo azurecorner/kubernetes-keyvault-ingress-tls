@@ -1,0 +1,47 @@
+﻿@page
+@model WebApp.Pages.WeatherForecastModel
+@{
+    ViewData["Title"] = "Weather Forecast";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Weather Forecast</h1>
+    <p>Here is the latest weather data:</p>
+
+    <div id="weatherForecast" class="mt-4"></div> <!-- Weather data will be populated here -->
+</div>
+
+@section Scripts {
+    <script>
+        // Use the dynamically passed API URL from Razor Page model
+        const apiUrl = '@Model.WeatherApiUrl';
+        // Function to fetch weather data from the API
+        async function getWeatherData() {
+            try {
+                // const response = await fetch('https://localhost:5200/api/WeatherForecast');
+                const response = await fetch(apiUrl);
+                console.log('response => ',response);
+                
+                if (response.ok) {
+                    const weatherData = await response.json();
+                    const weatherContainer = document.getElementById('weatherForecast');
+                    weatherContainer.innerHTML = "<ul>" + weatherData.map(forecast => {
+                        return `
+                            <li>
+                                <strong>${new Date(forecast.date).toLocaleDateString()}</strong>:
+                                ${forecast.temperatureC}°C, ${forecast.summary}
+                            </li>
+                        `;
+                    }).join('') + "</ul>";
+                } else {
+                    console.error('Error fetching weather data:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        // Call the function to fetch and display the weather data on page load
+        window.onload = getWeatherData;
+    </script>
+}
