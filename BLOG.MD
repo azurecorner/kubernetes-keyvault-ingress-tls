@@ -291,6 +291,114 @@ data "azurerm_user_assigned_identity" "azurekeyvaultsecretsprovider_assigned_ide
 }
 ```
 
-# Helm Chart Configuration for Deployment in azure
+- **terraform init**
+
+- **terraform plan -out main.tfplan**
+
+- **terraform apply main.tfplan**
+
+
+# Helm Chart for Deploying AKS Web API, WebApp, and Ingress Controller with TLS using Azure KeyVault
+
+## 3. Hierarchical Summary
+
+This structure repeats for every subdirectory under the base directory. The key directories and their notable files are:
+
+- **`charts`**:  
+  Contains `deploy-helm.ps1` and `extra-volumes.yaml`.
+
+- **`charts/ingress`**:  
+  Contains Helm configuration files like `Chart.yaml` and `values.yaml`.
+
+- **`charts/ingress/templates`**:  
+  Contains template files like `ingress-tls.yaml` and `test-pod.yaml`.
+
+- **`charts/secrets`**:  
+  Contains secret-related configuration files like `Chart.yaml` and `values.yaml`.
+
+- **`charts/webapi` and `charts/webapp`**:  
+  Contain their own `Chart.yaml`, `values.yaml`, and related templates like `web-api.yaml` and `web-app.yaml`.
+
+```yaml
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: {{ .Values.secretProviderClassName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  provider: azure
+  secretObjects:                            # secretObjects defines the desired state of synced K8s secret objects
+    - secretName: {{ .Values.secretName }}
+      type: kubernetes.io/tls
+      data: 
+        - objectName: {{ .Values.objectName }}
+          key: tls.key
+        - objectName: {{ .Values.objectName }}
+          key: tls.crt
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{ .Values.userAssignedIdentityID }}  # the user-assigned identity ID
+    keyvaultName:  {{ .Values.keyVaultName}}          # the name of the AKV instance
+    objects: |
+      array:
+        - |
+          objectName: {{ .Values.objectName }}
+          objectType: secret
+    tenantId: {{ .Values.tenantId }}                    # the tenant ID of the AKV instance
+
+```
+The provided YAML manifest defines a SecretProviderClass resource for the Azure Key Vault Provider for Secrets Store CSI Driver. This enables Kubernetes pods to securely retrieve secrets stored in Azure Key Vault and sync them as Kubernetes secrets.
+
+
+- **`spec.provider`**:  
+  Specifies the cloud provider for the Secrets Store CSI Driver. In this case, it is set to `azure`.
+
+- **`spec.secretObjects`**:  
+  Configures how secrets are synced into Kubernetes secrets:
+  - **`secretName`**: The name of the resulting Kubernetes secret.  
+  - **`type`**: The type of the Kubernetes secret (`kubernetes.io/tls` in this case).  
+  - **`data`**: Maps objects stored in Azure Key Vault to keys in the Kubernetes secret (e.g., `tls.key` and `tls.crt`).  
+
+- **`parameters.objects`**:  
+  Specifies the Key Vault objects to retrieve:
+  - **`objectName`**: The name of the object in Azure Key Vault (templated here).  
+  - **`objectType`**: The type of object in Azure Key Vault (e.g., `secret`).  
+
+### Configuration Values and Explanation
+
+```yaml
+namespace: ingress-nginx
+secretProviderClassName: azure-tls
+secretName: ingress-tls-csi
+objectName: logcorner-datasync-cert
+keyVaultName: kv-shared-edusync-dev
+userAssignedIdentityID: XXXXXXXXXXX
+tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+### Field Explanations
+
+- **`namespace: ingress-nginx`**  
+  Specifies the Kubernetes namespace where the resources will be deployed. Here, it is set to `ingress-nginx`.
+
+- **`secretProviderClassName: azure-tls`**  
+  The name of the `SecretProviderClass` that defines the connection and retrieval configuration for Azure Key Vault secrets.
+
+- **`secretName: ingress-tls-csi`**  
+  The name of the Kubernetes secret that will store the TLS certificate data (`tls.key` and `tls.crt`) retrieved from Azure Key Vault.
+
+- **`objectName: logcorner-datasync-cert`**  
+  The name of the specific object (e.g., a certificate) stored in Azure Key Vault to be retrieved.
+
+- **`keyVaultName: kv-shared-edusync-dev`**  
+  The Azure Key Vault instance from which secrets or certificates will be accessed.
+
+- **`userAssignedIdentityID: XXXXXXXXXXX`**  
+  The ID of the **User-Assigned Managed Identity (UAMI)** used to authenticate with Azure Key Vault.
+
+- **`tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`**  
+  The Azure Active Directory (AAD) tenant ID associated with the Azure Key Vault.
+
+
 
 # Deployment using powershell 
