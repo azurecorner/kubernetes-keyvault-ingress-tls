@@ -319,6 +319,8 @@ This structure repeats for every subdirectory under the base directory. The key 
 - **`charts/webapi` and `charts/webapp`**:  
   Contain their own `Chart.yaml`, `values.yaml`, and related templates like `web-api.yaml` and `web-app.yaml`.
 
+  ## Helm chart configuration of secret-related  files like SecretProviderClass .
+
 ```yaml
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
@@ -399,6 +401,248 @@ tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 - **`tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`**  
   The Azure Active Directory (AAD) tenant ID associated with the Azure Key Vault.
 
+## Helm chart configuration of web api .
 
+# Deployment and Service Templates for Helm Chart
+
+This Helm chart defines Kubernetes resources for deploying an API service using a `Deployment` and a `Service`.
+
+---
+
+## **Template: `templates/deployment.yaml`**
+
+### **Deployment Resource**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aks-command-api.fullname" . }}-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "aks-command-api.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "aks-command-api.fullname" . }}
+    spec:
+      containers:
+      - name: aks-command-api
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.containerPort }}
+       
+        env:
+        - name: TITLE
+          value: "{{ .Values.env.title }}"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "{{ .Values.env.aspnetcoreEnvironment }}"
+```
+Key Details:
+Metadata:
+
+name: Generated dynamically using the fullname helper.
+namespace: Uses the namespace from values.yaml.
+Spec:
+
+replicas: Number of pod replicas set dynamically using values.yaml.
+Selector: Matches labels with the fullname.
+Template:
+Defines container configurations, including the image, ports, and environment variables.
+Environment Variables:
+TITLE: A welcome message set in values.yaml.
+ASPNETCORE_ENVIRONMENT: Indicates the environment (e.g., Kubernetes).
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aks-command-api.fullname" . }}-service
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.port }}  # Expose port 80 to external access
+    targetPort: {{ .Values.service.targetPort }}   # Map to port 8080 inside the pod
+  selector:
+    app: {{ include "aks-command-api.fullname" . }}
+```
+Key Details:
+Metadata:
+
+name: Dynamically generated using the fullname helper.
+namespace: Defined in values.yaml.
+Spec:
+
+type: The service type (e.g., ClusterIP) is set dynamically.
+Ports:
+port: External port (default 80).
+targetPort: Maps to the container's port (default 8080).
+Selector: Matches pods labeled with the fullname.
+
+```yaml
+namespace: ingress-nginx
+replicaCount: 1
+
+image:
+  repository: aksingrestlsacr.azurecr.io/kubernetes-ingress-tls-api
+  pullPolicy: IfNotPresent
+  tag: v1.0.0
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  containerPort: 8080
+
+env:
+  title: "Welcome to Azure Kubernetes Service (AKS)"
+  aspnetcoreEnvironment: "Kubernetes"
+
+```
+Fields Explained:
+namespace: The namespace where resources will be deployed.
+replicaCount: Number of pod replicas.
+image:
+repository: The container image repository.
+pullPolicy: Specifies when the image should be pulled (IfNotPresent).
+tag: Image version (v1.0.0).
+service:
+type: Type of Kubernetes service (ClusterIP).
+port and targetPort: Map external and container ports.
+containerPort: The port exposed by the container.
+env:
+title: Sets a welcome message.
+aspnetcoreEnvironment: Specifies the runtime environment.
+
+```yaml
+apiVersion: v2
+name: http-api
+appVersion: "1.0.0"
+description: A Helm chart for the API HTTP service
+version: 1.0.0
+type: application
+
+
+```
+Fields Explained:
+apiVersion: Helm chart API version (v2).
+name: The chart's name (http-api).
+appVersion: The version of the deployed application (1.0.0).
+description: Brief description of the chart.
+version: The Helm chart's version (1.0.0).
+type: The chart type (application).
+## Helm chart configuration of web app
+
+## Helm chart configuration of ingress nginx
+# Ingress Configuration for TLS (`ingress-tls.yaml`)
+
+This template defines a Kubernetes `Ingress` resource to expose services securely using TLS. The configuration is tailored for Helm templating, allowing flexibility across environments.
+
+---
+
+## **Ingress Resource**
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingressName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ .Values.hosts.webapi }}
+    - {{ .Values.hosts.webapp }}
+    secretName: {{ .Values.secretName }}
+  rules:
+  - host: {{ .Values.hosts.webapi }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: {{ .Values.service.webapi }}
+            port:
+              number: 80
+  - host: {{ .Values.hosts.webapp }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: {{ .Values.service.webapp }}
+            port:
+              number: 80
+```
+Key Details:
+Metadata:
+
+name: Set dynamically using ingressName from values.yaml.
+namespace: The namespace is defined in values.yaml.
+TLS Configuration:
+
+tls:
+hosts: Specifies the domains for which TLS termination is enabled.
+secretName: References the Kubernetes secret containing the TLS certificate.
+Ingress Rules:
+
+Defines routing rules for HTTP traffic:
+Host: Specifies the domain (webapi and webapp hosts) for the traffic.
+Path: Matches requests with a specific path (/ in this case).
+Backend:
+service.name: The service name to forward traffic to.
+port.number: The target service port (default 80).
+
+# Values Configuration (`values.yaml`)
+
+This configuration file defines customizable values for the Helm chart that will deploy resources such as ingress, secrets, and services.
+
+---
+
+## **Namespace and Resource Names**
+```yaml
+namespace: ingress-nginx
+ingressName: ingress-datasynchro
+secretName: ingress-tls-csi
+secretProviderClassName: azure-tls
+```
+
+Field Descriptions:
+namespace: Specifies the Kubernetes namespace where resources are deployed.
+Example: ingress-nginx
+ingressName: The name of the ingress resource.
+Example: ingress-datasynchro
+secretName: Name of the Kubernetes secret used for TLS configuration.
+Example: ingress-tls-csi
+secretProviderClassName: The SecretProviderClass for the CSI driver integration with Azure Key Vault.
+Example: azure-tls
+
+Hosts Configuration
+yaml
+Copier le code
+hosts:
+  webapp: app.cloud-devops-craft.com
+  webapi: api.cloud-devops-craft.com
+Field Descriptions:
+hosts.webapp: The domain for the Web App.
+Example: app.cloud-devops-craft.com
+hosts.webapi: The domain for the Web API.
+Example: api.cloud-devops-craft.com
+Service Configuration
+yaml
+Copier le code
+service:
+  webapp: datasynchro-app-http-app-service
+  webapi: datasynchro-api-http-api-service
+Field Descriptions:
+service.webapp: The Kubernetes service name for the Web App backend.
+Example: datasynchro-app-http-app-service
+service.webapi: The Kubernetes service name for the Web API backend.
+Example: datasynchro-api-http-api-service
 
 # Deployment using powershell 
