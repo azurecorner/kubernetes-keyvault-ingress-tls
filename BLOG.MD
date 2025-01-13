@@ -588,24 +588,22 @@ spec:
               number: 80
 ```
 
-Key Details:
-Metadata:
 
-name: Set dynamically using ingressName from values.yaml.
-namespace: The namespace is defined in values.yaml.
-TLS Configuration:
+- **name**: Set dynamically using ingressName from values.yaml.
+- **namespace**: The namespace is defined in values.yaml.
+ **TLS Configuration**:
 
-tls:
-hosts: Specifies the domains for which TLS termination is enabled.
-secretName: References the Kubernetes secret containing the TLS certificate.
-Ingress Rules:
+**tls**:
+- **hosts**: Specifies the domains for which TLS termination is enabled.
+- **secretName**: References the Kubernetes secret containing the TLS certificate.
+ **Ingress Rules**:
 
-Defines routing rules for HTTP traffic:
-Host: Specifies the domain (webapi and webapp hosts) for the traffic.
-Path: Matches requests with a specific path (/ in this case).
-Backend:
-service.name: The service name to forward traffic to.
-port.number: The target service port (default 80).
+**Defines routing rules for HTTP traffic**:
+- **Host**: Specifies the domain (webapi and webapp hosts) for the traffic.
+- **Path**: Matches requests with a specific path (/ in this case).
+**Backend**:
+- **service.name**: The service name to forward traffic to.
+- **port.number**: The target service port (default 80).
 
 # Values Configuration (`values.yaml`)
 
@@ -620,39 +618,46 @@ namespace: ingress-nginx
 ingressName: ingress-datasynchro
 secretName: ingress-tls-csi
 secretProviderClassName: azure-tls
-```
 
-Field Descriptions:
-namespace: Specifies the Kubernetes namespace where resources are deployed.
-Example: ingress-nginx
-ingressName: The name of the ingress resource.
-Example: ingress-datasynchro
-secretName: Name of the Kubernetes secret used for TLS configuration.
-Example: ingress-tls-csi
-secretProviderClassName: The SecretProviderClass for the CSI driver integration with Azure Key Vault.
-Example: azure-tls
-
-Hosts Configuration
-yaml
-Copier le code
 hosts:
-  webapp: app.cloud-devops-craft.com
+  webapp: app.cloud-devops-craft.com 
   webapi: api.cloud-devops-craft.com
-Field Descriptions:
-hosts.webapp: The domain for the Web App.
-Example: app.cloud-devops-craft.com
-hosts.webapi: The domain for the Web API.
-Example: api.cloud-devops-craft.com
-Service Configuration
-yaml
-Copier le code
+ 
 service:
   webapp: datasynchro-app-http-app-service
   webapi: datasynchro-api-http-api-service
-Field Descriptions:
-service.webapp: The Kubernetes service name for the Web App backend.
-Example: datasynchro-app-http-app-service
-service.webapi: The Kubernetes service name for the Web API backend.
-Example: datasynchro-api-http-api-service
+
+volume:
+  name: secrets-store-inline
+  mountPath: "/mnt/secrets-store"
+
+```
+
+### Namespace
+- **namespace**: Specifies the Kubernetes namespace where resources are deployed.  
+  **Example**: `ingress-nginx`
+
+### Ingress Resource
+- **ingressName**: The name of the ingress resource.  
+  **Example**: `ingress-datasynchro`
+
+### TLS Configuration
+- **secretName**: Name of the Kubernetes secret used for TLS configuration.  
+  **Example**: `ingress-tls-csi`
+
+- **secretProviderClassName**: The `SecretProviderClass` for the CSI driver integration with Azure Key Vault.  
+  **Example**: `azure-tls`
+
+### Hosts Configuration
+
+
+hosts:
+  - **webapp**: app.cloud-devops-craft.com
+  - **webapi**: api.cloud-devops-craft.com
+
+
+
+# Deployment using powershell 
+
 
 # Deployment using powershell
