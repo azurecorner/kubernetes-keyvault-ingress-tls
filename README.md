@@ -1,3 +1,6 @@
+# Architecture Overview
+![architecture drawio](https://github.com/user-attachments/assets/10bec166-c7b8-4ee7-b73f-5a8fc4d6ad0d)
+
 # Terraform Configuration for Azure Resources
 
 This repository contains a Terraform configuration to provision Azure resources including an AKS cluster, an Azure Container Registry, and a Key Vault. The configuration also handles SSH key generation and DNS prefix creation dynamically.
