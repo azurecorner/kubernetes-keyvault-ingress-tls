@@ -3,6 +3,7 @@
 This repository contains a Terraform configuration to provision Azure resources including an AKS cluster, an Azure Container Registry, and a Key Vault. The configuration also handles SSH key generation and DNS prefix creation dynamically.
 
 ### 1. **Resource Group**
+
 A resource group is created in the specified Azure region.
 
 ```hcl
@@ -11,9 +12,10 @@ resource "azurerm_resource_group" "resource_group" {
   location = var.resource_group_location
 }
 ```
+
 ### 2. **generates a random pet name using the random_pe` resource type**
 
-This Terraform file defines a resource that generates a **random pet name** using the `random_pet` resource type. The `random_pet` resource is commonly used to generate unique, human-readable names that can be used in naming conventions for resources. 
+This Terraform file defines a resource that generates a **random pet name** using the `random_pet` resource type. The `random_pet` resource is commonly used to generate unique, human-readable names that can be used in naming conventions for resources.
 
 ```hcl
 resource "random_pet" "ssh_key_name" {
@@ -45,7 +47,6 @@ resource "azapi_resource" "ssh_public_key" {
   depends_on = [azurerm_resource_group.resource_group]
 }
 ```
-
 
 ### 4. **Azure Kubernetes Service (AKS)**
 
@@ -100,7 +101,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 ```
 
-
 ### 5. **Azure Container Registry (ACR)**
 
 This Terraform configuration creates an **Azure Container Registry (ACR)** with the following key features:
@@ -112,7 +112,6 @@ This Terraform configuration creates an **Azure Container Registry (ACR)** with 
 - **Dependency**: Ensures the ACR is created only after the resource group is available.
 
 This setup provides a fully functional and easily configurable container registry in Azure.
-
 
 ```hcl
 resource "azurerm_container_registry" "container_registry" {
@@ -170,7 +169,7 @@ resource "azurerm_role_assignment" "aks_acr" {
   principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   depends_on           = [azurerm_kubernetes_cluster.aks, azurerm_container_registry.container_registry]
 }
-``` 
+```
 
 ### 8. **role-based access control (RBAC) Key Vault Certificates Officer for Key Vault Secrets Provider**
 
@@ -183,7 +182,6 @@ This Terraform configuration assigns a **role-based access control (RBAC)** role
 
 This setup enables secure and granular access for the managed identity to interact with Key Vault certificates.
 
-
 ```hcl
 resource "azurerm_role_assignment" "azurekeyvaultsecretsprovider_assigned_identity" {
   scope                = azurerm_key_vault.key_vault.id
@@ -191,8 +189,7 @@ resource "azurerm_role_assignment" "azurekeyvaultsecretsprovider_assigned_identi
   principal_id         = data.azurerm_user_assigned_identity.azurekeyvaultsecretsprovider_assigned_identity.principal_id
   depends_on           = [azurerm_key_vault.key_vault]
 }
-``` 
-
+```
 
 ### 9. **access policy for an Azure Key Vault, granting specific permissions to a user-assigned managed identity**
 
@@ -222,10 +219,10 @@ resource "azurerm_key_vault_access_policy" "vault_access_policy_managed_id" {
   ]
   depends_on = [azurerm_key_vault.key_vault, azurerm_kubernetes_cluster.aks]
 }
-``` 
-
+```
 
 ### 10. **access policy** for an Azure Key Vault, granting an administrator extensive permissions**
+
 This Terraform configuration creates an **access policy** for an Azure Key Vault, granting an administrator extensive permissions.
 
 - **Key Vault ID**: Specifies the Key Vault to which the access policy applies.
@@ -254,7 +251,6 @@ resource "azurerm_key_vault_access_policy" "vault_access_policy_me" {
 }
 ```
 
-
 ### 11. **Explanation of the Data Sources**
 
 This Terraform configuration uses **data sources** to retrieve information about the current Azure client and a user-assigned managed identity for interacting with Azure Key Vault.
@@ -262,6 +258,7 @@ This Terraform configuration uses **data sources** to retrieve information about
 ---
 
 ### 11.1. **`azurerm_client_config` "current"**
+
 This data source retrieves information about the **current Azure client configuration**. It provides details like the Azure tenant ID, which is required for some resources and access policies.
 
 - **Purpose**: To retrieve the current Azure tenant ID for later use in other resources (e.g., Key Vault access policies).
@@ -269,6 +266,7 @@ This data source retrieves information about the **current Azure client configur
 ---
 
 ### 11.2. **`azurerm_user_assigned_identity` "azurekeyvaultsecretsprovider_assigned_identity"**
+
 This data source fetches an existing **user-assigned managed identity** that will be used for interacting with Azure Key Vault.
 
 - **`name`**: Specifies the name of the user-assigned identity, dynamically created using the AKS name.
@@ -297,7 +295,6 @@ data "azurerm_user_assigned_identity" "azurekeyvaultsecretsprovider_assigned_ide
 
 - **terraform apply main.tfplan**
 
-
 # Helm Chart for Deploying AKS Web API, WebApp, and Ingress Controller with TLS using Azure KeyVault
 
 ## 3. Hierarchical Summary
@@ -319,7 +316,7 @@ This structure repeats for every subdirectory under the base directory. The key 
 - **`charts/webapi` and `charts/webapp`**:  
   Contain their own `Chart.yaml`, `values.yaml`, and related templates like `web-api.yaml` and `web-app.yaml`.
 
-  ## Helm chart configuration of secret-related  files like SecretProviderClass .
+  ## Helm chart configuration of secret-related  files like SecretProviderClass
 
 ```yaml
 apiVersion: secrets-store.csi.x-k8s.io/v1
@@ -350,8 +347,8 @@ spec:
     tenantId: {{ .Values.tenantId }}                    # the tenant ID of the AKV instance
 
 ```
-The provided YAML manifest defines a SecretProviderClass resource for the Azure Key Vault Provider for Secrets Store CSI Driver. This enables Kubernetes pods to securely retrieve secrets stored in Azure Key Vault and sync them as Kubernetes secrets.
 
+The provided YAML manifest defines a SecretProviderClass resource for the Azure Key Vault Provider for Secrets Store CSI Driver. This enables Kubernetes pods to securely retrieve secrets stored in Azure Key Vault and sync them as Kubernetes secrets.
 
 - **`spec.provider`**:  
   Specifies the cloud provider for the Secrets Store CSI Driver. In this case, it is set to `azure`.
@@ -378,6 +375,7 @@ keyVaultName: kv-shared-edusync-dev
 userAssignedIdentityID: XXXXXXXXXXX
 tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
+
 ### Field Explanations
 
 - **`namespace: ingress-nginx`**  
@@ -401,9 +399,9 @@ tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 - **`tenantId: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`**  
   The Azure Active Directory (AAD) tenant ID associated with the Azure Key Vault.
 
-## Helm chart configuration of web api .
+## Helm chart configuration of web api
 
-# Deployment and Service Templates for Helm Chart
+### Deployment and Service Templates for Helm Chart
 
 This Helm chart defines Kubernetes resources for deploying an API service using a `Deployment` and a `Service`.
 
@@ -412,6 +410,7 @@ This Helm chart defines Kubernetes resources for deploying an API service using 
 ## **Template: `templates/deployment.yaml`**
 
 ### **Deployment Resource**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -441,20 +440,19 @@ spec:
         - name: ASPNETCORE_ENVIRONMENT
           value: "{{ .Values.env.aspnetcoreEnvironment }}"
 ```
-Key Details:
-Metadata:
 
-name: Generated dynamically using the fullname helper.
-namespace: Uses the namespace from values.yaml.
+- **name**: Generated dynamically using the fullname helper.
+- **namespace**: Uses the namespace from values.yaml.
 Spec:
 
-replicas: Number of pod replicas set dynamically using values.yaml.
-Selector: Matches labels with the fullname.
-Template:
+- **replicas**: Number of pod replicas set dynamically using values.yaml.
+- **Selector**: Matches labels with the fullname.
+- **Template**:
 Defines container configurations, including the image, ports, and environment variables.
-Environment Variables:
+- **Environment Variables**:
 TITLE: A welcome message set in values.yaml.
 ASPNETCORE_ENVIRONMENT: Indicates the environment (e.g., Kubernetes).
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -469,18 +467,15 @@ spec:
   selector:
     app: {{ include "aks-command-api.fullname" . }}
 ```
-Key Details:
-Metadata:
 
-name: Dynamically generated using the fullname helper.
-namespace: Defined in values.yaml.
-Spec:
+- **name**: Dynamically generated using the fullname helper.
+- **namespace**: Defined in values.yaml.
 
-type: The service type (e.g., ClusterIP) is set dynamically.
-Ports:
-port: External port (default 80).
-targetPort: Maps to the container's port (default 8080).
-Selector: Matches pods labeled with the fullname.
+- **type**: The service type (e.g., ClusterIP) is set dynamically.
+
+- **port**: External port (default 80).
+- **targetPort**: Maps to the container's port (default 8080).
+- **Selector**: Matches pods labeled with the fullname.
 
 ```yaml
 namespace: ingress-nginx
@@ -502,20 +497,26 @@ env:
   aspnetcoreEnvironment: "Kubernetes"
 
 ```
-Fields Explained:
-namespace: The namespace where resources will be deployed.
-replicaCount: Number of pod replicas.
-image:
-repository: The container image repository.
-pullPolicy: Specifies when the image should be pulled (IfNotPresent).
-tag: Image version (v1.0.0).
-service:
-type: Type of Kubernetes service (ClusterIP).
-port and targetPort: Map external and container ports.
-containerPort: The port exposed by the container.
-env:
-title: Sets a welcome message.
-aspnetcoreEnvironment: Specifies the runtime environment.
+
+- **namespace**: The namespace where resources will be deployed.
+- **replicaCount**: Number of pod replicas.
+
+#### image ####
+
+- **repository**: The container image repository.
+- **pullPolicy**: Specifies when the image should be pulled (IfNotPresent).
+- **tag**: Image version (v1.0.0).
+
+#### service ####
+
+- **type**: Type of Kubernetes service (ClusterIP).
+- **port and targetPort**: Map external and container ports.
+- **containerPort**: The port exposed by the container.
+
+#### env ####
+
+- **title**: Sets a welcome message.
+- **aspnetcoreEnvironment**: Specifies the runtime environment.
 
 ```yaml
 apiVersion: v2
@@ -527,16 +528,22 @@ type: application
 
 
 ```
-Fields Explained:
-apiVersion: Helm chart API version (v2).
-name: The chart's name (http-api).
-appVersion: The version of the deployed application (1.0.0).
-description: Brief description of the chart.
-version: The Helm chart's version (1.0.0).
-type: The chart type (application).
+
+- **apiVersion**: Helm chart API version (v2).
+- **name**: The chart's name (http-api).
+- **appVersion**: The version of the deployed application (1.0.0).
+- **description**: Brief description of the chart.
+- **version**: The Helm chart's version (1.0.0).
+- **type**: The chart type (application).
+
 ## Helm chart configuration of web app
 
+### Deployment and Service Templates for Helm Chart
+
+The Helm configuration of the web app is similar to that of the web api, so we follow the same principle. So I will not describe it in this document.
+
 ## Helm chart configuration of ingress nginx
+
 # Ingress Configuration for TLS (`ingress-tls.yaml`)
 
 This template defines a Kubernetes `Ingress` resource to expose services securely using TLS. The configuration is tailored for Helm templating, allowing flexibility across environments.
@@ -544,6 +551,7 @@ This template defines a Kubernetes `Ingress` resource to expose services securel
 ---
 
 ## **Ingress Resource**
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -579,6 +587,7 @@ spec:
             port:
               number: 80
 ```
+
 Key Details:
 Metadata:
 
@@ -605,6 +614,7 @@ This configuration file defines customizable values for the Helm chart that will
 ---
 
 ## **Namespace and Resource Names**
+
 ```yaml
 namespace: ingress-nginx
 ingressName: ingress-datasynchro
@@ -645,4 +655,4 @@ Example: datasynchro-app-http-app-service
 service.webapi: The Kubernetes service name for the Web API backend.
 Example: datasynchro-api-http-api-service
 
-# Deployment using powershell 
+# Deployment using powershell
