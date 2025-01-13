@@ -710,6 +710,50 @@ hosts:
 
 
 # Deployment using powershell 
+This PowerShell script automates the deployment of an AKS (Azure Kubernetes Service) cluster with an NGINX Ingress Controller, TLS certificates integration using Azure Key Vault, and deployment of .NET Core applications (webapp and webapi) along with an Ingress configuration.
+# Explanation of the PowerShell Script
 
+This script automates the setup and deployment of a Kubernetes environment in Azure, with key components like an NGINX Ingress Controller, Azure Key Vault integration, and .NET Core applications. Below is an explanation of the steps:
 
-# Deployment using powershell
+## 1. **Variable Initialization**
+The script begins by defining variables for chart names, namespace, resource group, cluster name, and other Azure-specific identifiers.
+
+## 2. **Cluster Authentication**
+The script authenticates with the Azure Kubernetes Service (AKS) cluster using Azure CLI. This ensures the local environment has the correct credentials to interact with the cluster.
+
+## 3. **Azure Key Vault Integration**
+- Verifies the installation of the Secrets Store CSI Driver for Kubernetes.
+- Retrieves the user-assigned managed identity ID used to access secrets in Azure Key Vault.
+- Deploys the Key Vault Secrets Provider Helm chart, enabling seamless integration between Azure Key Vault and Kubernetes.
+
+## 4. **Deploy NGINX Ingress Controller**
+- Adds the Helm repository for NGINX and updates the Helm charts to ensure the latest versions are used.
+- Deploys the NGINX Ingress Controller with a LoadBalancer service, enabling external access to applications.
+- Configures health probes and ensures the controller is properly set up.
+
+## 5. **Wait for Load Balancer External IP**
+The script continuously checks for the LoadBalancer’s external IP address, which is required to route traffic to the Ingress Controller. It waits until the IP address is available.
+
+## 6. **Validate NGINX Deployment**
+- Retrieves and verifies Kubernetes services, secrets, and pods related to the NGINX Ingress Controller.
+- Confirms that the services are online and accessible.
+
+## 7. **Deploy Applications**
+- Deploys the Web API and Web App using Helm charts.
+- Ensures the pods are ready and operational by waiting for their readiness status.
+
+## 8. **Deploy and Validate Ingress**
+- Deploys the Ingress configuration using a Helm chart to route traffic to the deployed applications.
+- Verifies the Ingress configuration, ensuring it is properly defined and functional.
+
+## 9. **Access Applications**
+- Pings the external IP address to confirm connectivity.
+- Makes HTTPS requests to the deployed Web App and Web API using `curl` to validate their functionality.
+- Outputs HTTP response codes and responses for verification.
+
+## 10. **Summary**
+This script ensures a fully automated, secure deployment of Kubernetes infrastructure and applications with:
+- Secure TLS via Azure Key Vault.
+- Traffic routing via NGINX Ingress.
+- Automated validation to confirm successful deployment.
+
