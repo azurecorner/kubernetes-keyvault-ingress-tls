@@ -1,3 +1,52 @@
+# Setting Up TLS for Ingress Nginx on Azure Kubernetes Service (AKS) Using Azure Key Vault
+
+This guide explains how to set up a secure environment for a .NET Core web application (`wapp`) and a .NET Core web API (`wep`) deployed in Azure Kubernetes Service (AKS) using an Ingress NGINX Controller with TLS certificates stored in Azure Key Vault. The entire infrastructure and application deployment is automated using Terraform and Helm.
+
+## Key Components
+
+1. **Applications**: 
+   - `wapp`: A .NET Core web application.
+   - `wep`: A .NET Core web API.
+   
+2. **Infrastructure**:
+   - **Azure Kubernetes Service (AKS)**: Hosts the containerized applications.
+   - **Azure Container Registry (ACR)**: Stores container images for `wapp` and `wep`.
+   - **Azure Key Vault**: Securely stores the TLS certificates.
+   
+3. **Ingress NGINX Controller**:
+   - Acts as a gateway to route external traffic to your Kubernetes services.
+   - Configured to use TLS for secure communication, with certificates retrieved from Azure Key Vault.
+
+4. **Automation**:
+   - **Terraform**: Provisions and manages infrastructure (AKS, ACR, Key Vault).
+   - **Helm Charts**: Deploys the applications, Ingress NGINX, and other Kubernetes resources.
+
+## Workflow Overview
+
+1. **Infrastructure Setup**:
+   - Terraform is used to create:
+     - An AKS cluster for running Kubernetes workloads.
+     - An ACR to store the container images.
+     - An Azure Key Vault to securely manage and store the TLS certificates.
+
+2. **Application Deployment**:
+   - Both the `wapp` and `wep` applications are containerized and pushed to ACR.
+   - Helm charts are used to deploy these applications to AKS, ensuring a consistent and repeatable deployment process.
+
+3. **Ingress NGINX and TLS Configuration**:
+   - The Ingress NGINX controller is deployed via Helm.
+   - The controller is configured with an Ingress resource to route traffic to `wapp` and `wep`.
+   - TLS certificates for the domain are securely stored in Azure Key Vault.
+   - Ingress NGINX retrieves these certificates to enable HTTPS for secure communication.
+
+## Benefits of This Setup
+
+- **Secure Communication**: TLS ensures data privacy and security between clients and your applications.
+- **Scalable Deployment**: Terraform and Helm automate infrastructure provisioning and application deployment.
+- **Centralized Certificate Management**: Azure Key Vault provides a secure, centralized solution for managing TLS certificates.
+
+By leveraging Terraform, Helm, and Azure services, this setup provides a secure, scalable, and automated approach to deploying and managing your .NET Core applications in a Kubernetes environment.
+
 # Architecture Overview
 ![architecture drawio](https://github.com/user-attachments/assets/10bec166-c7b8-4ee7-b73f-5a8fc4d6ad0d)
 
