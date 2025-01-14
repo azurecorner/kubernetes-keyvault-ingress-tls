@@ -711,7 +711,7 @@ hosts:
 
 # Deployment using powershell 
 This PowerShell script automates the deployment of an AKS (Azure Kubernetes Service) cluster with an NGINX Ingress Controller, TLS certificates integration using Azure Key Vault, and deployment of .NET Core applications (webapp and webapi) along with an Ingress configuration.
-# Explanation of the PowerShell Script
+## Explanation of the PowerShell Script
 
 This script automates the setup and deployment of a Kubernetes environment in Azure, with key components like an NGINX Ingress Controller, Azure Key Vault integration, and .NET Core applications. Below is an explanation of the steps:
 
