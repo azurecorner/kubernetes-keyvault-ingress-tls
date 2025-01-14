@@ -1,16 +1,16 @@
 # Setting Up TLS for Ingress Nginx on Azure Kubernetes Service (AKS) Using Azure Key Vault
 
-This guide explains how to set up a secure environment for a .NET Core web application (`wapp`) and a .NET Core web API (`wep`) deployed in Azure Kubernetes Service (AKS) using an Ingress NGINX Controller with TLS certificates stored in Azure Key Vault. The entire infrastructure and application deployment is automated using Terraform and Helm.
+This guide explains how to set up a secure environment for a .NET Core web application (`webapp`) and a .NET Core web API (`webapi`) deployed in Azure Kubernetes Service (AKS) using an Ingress NGINX Controller with TLS certificates stored in Azure Key Vault. The entire infrastructure and application deployment is automated using Terraform and Helm.
 
 ## Key Components
 
 1. **Applications**: 
-   - `wapp`: A .NET Core web application.
-   - `wep`: A .NET Core web API.
+   - `webapp`: A .NET Core web application.
+   - `webapi`: A .NET Core web API.
    
 2. **Infrastructure**:
    - **Azure Kubernetes Service (AKS)**: Hosts the containerized applications.
-   - **Azure Container Registry (ACR)**: Stores container images for `wapp` and `wep`.
+   - **Azure Container Registry (ACR)**: Stores container images for `webapp` and `webapi`.
    - **Azure Key Vault**: Securely stores the TLS certificates.
    
 3. **Ingress NGINX Controller**:
@@ -30,12 +30,12 @@ This guide explains how to set up a secure environment for a .NET Core web appli
      - An Azure Key Vault to securely manage and store the TLS certificates.
 
 2. **Application Deployment**:
-   - Both the `wapp` and `wep` applications are containerized and pushed to ACR.
+   - Both the `webapp` and `webapi` applications are containerized and pushed to ACR.
    - Helm charts are used to deploy these applications to AKS, ensuring a consistent and repeatable deployment process.
 
 3. **Ingress NGINX and TLS Configuration**:
    - The Ingress NGINX controller is deployed via Helm.
-   - The controller is configured with an Ingress resource to route traffic to `wapp` and `wep`.
+   - The controller is configured with an Ingress resource to route traffic to `webapp` and `webapi`.
    - TLS certificates for the domain are securely stored in Azure Key Vault.
    - Ingress NGINX retrieves these certificates to enable HTTPS for secure communication.
 
